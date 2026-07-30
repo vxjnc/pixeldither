@@ -1,0 +1,12 @@
+[configuration]
+entry_symbol = "pixeldither_init"
+compatibility_minimum = "4.2"
+reloadable = true
+
+[libraries]
+linux.debug.x86_64 = "res://addons/pixeldither/bin/libpixeldither.linux.template_debug.x86_64.so"
+linux.release.x86_64 = "res://addons/pixeldither/bin/libpixeldither.linux.template_release.x86_64.so"
+windows.debug.x86_64 = "res://addons/pixeldither/bin/libpixeldither.windows.template_debug.x86_64.dll"
+windows.release.x86_64 = "res://addons/pixeldither/bin/libpixeldither.windows.template_release.x86_64.dll"
+macos.debug = "res://addons/pixeldither/bin/libpixeldither.macos.template_debug.framework"
+macos.release = "res://addons/pixeldither/bin/libpixeldither.macos.template_release.framework"
