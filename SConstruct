@@ -33,9 +33,13 @@ if env.WhereIs("mold"):
     env.Append(LINKFLAGS=["-fuse-ld=mold"])
 
 if env["platform"] == "windows" and env.get("use_mingw", False) == False:
-    env.Append(CXXFLAGS=["/std:c++20"])
+    env["CXXFLAGS"] = [f for f in env["CXXFLAGS"] if not f.startswith("/std:")] + [
+        "/std:c++20"
+    ]
 else:
-    env.Append(CXXFLAGS=["-std=c++20"])
+    env["CXXFLAGS"] = [f for f in env["CXXFLAGS"] if not f.startswith("-std=")] + [
+        "-std=c++20"
+    ]
 
 env.Append(CPPPATH=["src/"])
 sources = Glob("src/*.cpp")
