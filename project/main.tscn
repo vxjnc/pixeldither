@@ -24,3 +24,10 @@ value = 1.0
 [node name="ApplyButton" type="Button" parent="ControlsPanel" unique_id=1771589301]
 layout_mode = 2
 text = "Apply"
+
+[node name="Label" type="Label" parent="ControlsPanel" unique_id=1759745751]
+layout_mode = 2
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 5
+text = "0 ms"
+vertical_alignment = 1

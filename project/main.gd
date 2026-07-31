@@ -3,6 +3,7 @@ extends Node2D
 @onready var sprite: Sprite2D = $Sprite2D
 @onready var scale_input: SpinBox = $ControlsPanel/ScaleInput
 @onready var apply_button: Button = $ControlsPanel/ApplyButton
+@onready var label: Label = $ControlsPanel/Label
 
 var original_image: Image
 var processor: DitherProcessor
@@ -33,5 +34,9 @@ func _update_texture(target_size: Vector2i) -> void:
     var resized = original_image.duplicate()
     resized.resize(target_size.x, target_size.y, Image.INTERPOLATE_NEAREST)
 
+    var time_start = Time.get_ticks_msec()
     var result_image = processor.process(resized)
+    var time_end = Time.get_ticks_msec()
+    label.text = "%d ms" % (time_end - time_start)
+
     sprite.texture = ImageTexture.create_from_image(result_image)
