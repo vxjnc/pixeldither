@@ -1,17 +1,20 @@
-@tool
-extends EditorScript
+extends SceneTree
 
-func _run():
+func _initialize():
     var processor = DitherProcessor.new()
     var test_image = Image.create(2048, 2048, false, Image.FORMAT_RGBA8)
     test_image.fill(Color(0.5, 0.5, 0.5, 1.0))
 
-    var sizes = [64, 128, 256, 512, 1024, 2048]
+    var sizes = [64, 128, 256, 512, 1024]
     var iterations = 10
+    var warmup_iterations = 3
 
     for size in sizes:
         var resized = test_image.duplicate()
         resized.resize(size, size, Image.INTERPOLATE_NEAREST)
+
+        for i in range(warmup_iterations):
+            processor.process(resized)
 
         var times: Array[float] = []
         for i in range(iterations):
@@ -29,3 +32,5 @@ func _run():
             max_t = max(max_t, t)
 
         print("Size %dx%d: avg=%.3fms min=%.3fms max=%.3fms" % [size, size, total / iterations, min_t, max_t])
+
+    quit()
