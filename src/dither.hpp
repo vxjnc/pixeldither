@@ -11,5 +11,5 @@ protected:
     static void _bind_methods();
 
 public:
-    gd::Ref<gd::Image> process(gd::Ref<gd::Image> source, int target_w, int target_h);
+    gd::Ref<gd::Image> process(gd::Ref<gd::Image> source);
 };

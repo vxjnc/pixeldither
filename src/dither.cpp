@@ -1,68 +1,50 @@
 #include "dither.hpp"
 
-#include <vector>
+#include "error_diffusion.hpp"
+#include "palette.hpp"
 
-void DitherProcessor::_bind_methods() {
-    gd::ClassDB::bind_method(gd::D_METHOD("process", "source", "target_w", "target_h"),
-                             &DitherProcessor::process);
+static void dither_rgb_image_to_indexed(ErrorDiffusionDither& algorithm, double factor,
+                                        const gd::Ref<gd::Image>& srcImage, gd::Ref<gd::Image>& dstImage,
+                                        const Palette& palette) {
+    const int w = srcImage->get_width();
+    const int h = srcImage->get_height();
+
+    algorithm.start(srcImage, factor);
+
+    for (int y = 0; y < h; ++y) {
+        int start = (y & 1) ? w - 1 : 0;
+        int stop = (y & 1) ? -1 : w;
+        int step = (y & 1) ? -1 : 1;
+
+        for (int x = start; x != stop; x += step) {
+            int index = algorithm.ditherRgbToIndex2D(x, y, palette);
+            dstImage->set_pixel(x, y, palette.getEntry(index));
+        }
+    }
+
+    algorithm.finish();
 }
 
-gd::Ref<gd::Image> DitherProcessor::process(gd::Ref<gd::Image> source, int target_w, int target_h) {
+void DitherProcessor::_bind_methods() {
+    gd::ClassDB::bind_method(gd::D_METHOD("process", "source"), &DitherProcessor::process);
+}
+
+gd::Ref<gd::Image> DitherProcessor::process(gd::Ref<gd::Image> source) {
     gd::Ref<gd::Image> img = source->duplicate();
-    img->resize(target_w, target_h, gd::Image::INTERPOLATE_NEAREST);
+    img->convert(gd::Image::FORMAT_RGBA8);
 
-    int w = img->get_width();
-    int h = img->get_height();
+    Palette palette;
+    palette.addEntry(gd::Color(0, 0, 0, 1));
+    palette.addEntry(gd::Color(1, 1, 1, 1));
+    palette.addEntry(gd::Color(0, 0, 0, 0));
+    palette.initBestfit();
+    constexpr int transparentIndex = 2;
 
-    std::vector<float> gray_buffer(w * h);
-    std::vector<float> alpha_buffer(w * h);
+    gd::Ref<gd::Image> dstImage =
+        gd::Image::create(img->get_width(), img->get_height(), false, gd::Image::FORMAT_RGBA8);
 
-    for (int y = 0; y < h; y++) {
-        for (int x = 0; x < w; x++) {
-            gd::Color p = img->get_pixel(x, y);
-            gray_buffer[y * w + x] = 0.2126f * p.r + 0.7152f * p.g + 0.0722f * p.b;
-            alpha_buffer[y * w + x] = p.a;
-        }
-    }
+    ErrorDiffusionDither dither(transparentIndex);
+    dither_rgb_image_to_indexed(dither, 1.0, img, dstImage, palette);
 
-    for (int y = 0; y < h; y++) {
-        for (int x = 0; x < w; x++) {
-            int idx = y * w + x;
-            if (alpha_buffer[idx] < 0.5f) {
-                continue;
-            }
-
-            float gray = gray_buffer[idx];
-            float new_gray = gray > 0.5f ? 1.0f : 0.0f;
-            float error = gray - new_gray;
-            gray_buffer[idx] = new_gray;
-
-            auto add_error = [&](int nx, int ny, float coeff) {
-                if (nx < 0 || nx >= w || ny < 0 || ny >= h) {
-                    return;
-                }
-                int nidx = ny * w + nx;
-                if (alpha_buffer[nidx] < 0.5f) {
-                    return;
-                }
-                gray_buffer[nidx] = gd::CLAMP(gray_buffer[nidx] + error * coeff, 0.0f, 1.0f);
-            };
-
-            add_error(x + 1, y, 7.0f / 16.0f);
-            add_error(x - 1, y + 1, 3.0f / 16.0f);
-            add_error(x, y + 1, 5.0f / 16.0f);
-            add_error(x + 1, y + 1, 1.0f / 16.0f);
-        }
-    }
-
-    for (int y = 0; y < h; y++) {
-        for (int x = 0; x < w; x++) {
-            int idx = y * w + x;
-            float g = alpha_buffer[idx] < 0.5f ? 0.0f : gray_buffer[idx];
-            float a = alpha_buffer[idx] < 0.5f ? 0.0f : 1.0f;
-            img->set_pixel(x, y, gd::Color(g, g, g, a));
-        }
-    }
-
-    return img;
+    return dstImage;
 }

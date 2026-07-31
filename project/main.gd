@@ -1,42 +1,37 @@
 extends Node2D
 
 @onready var sprite: Sprite2D = $Sprite2D
+@onready var scale_input: SpinBox = $ControlsPanel/ScaleInput
+@onready var apply_button: Button = $ControlsPanel/ApplyButton
 
 var original_image: Image
 var processor: DitherProcessor
-var current_target_size: Vector2i = Vector2i.ZERO
-
-var dragging: bool = false
-var drag_handle_size: float = 16.0
+var current_size: Vector2i = Vector2i.ZERO
+var original_sprite_size: Vector2i = Vector2i.ZERO
 
 func _ready():
     processor = DitherProcessor.new()
+
     original_image = sprite.texture.get_image()
-    sprite.centered = false
+    original_sprite_size = original_image.get_size()
+
+    apply_button.pressed.connect(_on_apply_pressed)
 
     _update_texture(original_image.get_size())
+
+func _on_apply_pressed() -> void:
+    _update_texture(original_sprite_size * scale_input.value)
 
 func _update_texture(target_size: Vector2i) -> void:
     target_size.x = max(4, target_size.x)
     target_size.y = max(4, target_size.y)
-    if target_size == current_target_size:
+    if target_size == current_size:
         return
-    current_target_size = target_size
-    var result_image = processor.process(original_image, target_size.x, target_size.y)
+
+    current_size = target_size
+
+    var resized = original_image.duplicate()
+    resized.resize(target_size.x, target_size.y, Image.INTERPOLATE_NEAREST)
+
+    var result_image = processor.process(resized)
     sprite.texture = ImageTexture.create_from_image(result_image)
-
-func _get_bottom_right() -> Vector2:
-    return sprite.position + Vector2(current_target_size)
-
-func _input(event: InputEvent) -> void:
-    if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
-        if event.pressed:
-            var handle_pos = _get_bottom_right()
-            if event.position.distance_to(handle_pos) < drag_handle_size:
-                dragging = true
-        else:
-            dragging = false
-
-    elif event is InputEventMouseMotion and dragging:
-        var new_size = event.position - sprite.position
-        _update_texture(Vector2i(new_size))
