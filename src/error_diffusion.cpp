@@ -14,9 +14,7 @@ void ErrorDiffusionDither::start(const gd::Ref<gd::Image>& srcImage, double fact
     m_factor = int(factor * 100.0);
 }
 
-void ErrorDiffusionDither::finish() {}
-
-int ErrorDiffusionDither::ditherRgbToIndex2D(int x, int y, const Palette palette) {
+int ErrorDiffusionDither::ditherRgbToIndex2D(int x, int y, const Palette& palette) {
     if (y != m_lastY) {
         for (int i = 0; i < kChannels; ++i) {
             int* row0 = &m_err[i][0];
@@ -28,7 +26,7 @@ int ErrorDiffusionDither::ditherRgbToIndex2D(int x, int y, const Palette palette
         m_lastY = y;
     }
 
-    gd::Color color = m_srcImage->get_pixel(x, y);
+    const gd::Color& color = m_srcImage->get_pixel(x, y);
 
     int v[kChannels] = {color.get_r8(), color.get_g8(), color.get_b8(), color.get_a8()};
     for (int i = 0; i < kChannels; ++i) {
@@ -38,7 +36,7 @@ int ErrorDiffusionDither::ditherRgbToIndex2D(int x, int y, const Palette palette
 
     const int index = palette.findBestfit(v[0], v[1], v[2], v[3], m_transparentIndex);
 
-    gd::Color palColor = palette.getEntry(index);
+    const gd::Color& palColor = palette.getEntry(index);
     int palR = palColor.get_r8(), palG = palColor.get_g8(), palB = palColor.get_b8(),
         palA = palColor.get_a8();
 

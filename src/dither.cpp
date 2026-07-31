@@ -21,8 +21,6 @@ static void dither_rgb_image_to_indexed(ErrorDiffusionDither& algorithm, double 
             dstImage->set_pixel(x, y, palette.getEntry(index));
         }
     }
-
-    algorithm.finish();
 }
 
 void DitherProcessor::_bind_methods() {
@@ -30,21 +28,22 @@ void DitherProcessor::_bind_methods() {
 }
 
 gd::Ref<gd::Image> DitherProcessor::process(gd::Ref<gd::Image> source) {
-    gd::Ref<gd::Image> img = source->duplicate();
-    img->convert(gd::Image::FORMAT_RGBA8);
+    ERR_FAIL_COND_V_MSG(source->get_format() != gd::Image::FORMAT_RGBA8, gd::Ref<gd::Image>(),
+                        "DitherProcessor::process: source image must be in FORMAT_RGBA8");
 
-    Palette palette;
-    palette.addEntry(gd::Color(0, 0, 0, 1));
-    palette.addEntry(gd::Color(1, 1, 1, 1));
-    palette.addEntry(gd::Color(0, 0, 0, 0));
-    palette.initBestfit();
+    const gd::Color palette_colors[] = {
+        gd::Color(0, 0, 0, 1),
+        gd::Color(1, 1, 1, 1),
+        gd::Color(0, 0, 0, 0),
+    };
+    Palette palette(palette_colors);
     constexpr int transparentIndex = 2;
 
     gd::Ref<gd::Image> dstImage =
-        gd::Image::create(img->get_width(), img->get_height(), false, gd::Image::FORMAT_RGBA8);
+        gd::Image::create(source->get_width(), source->get_height(), false, gd::Image::FORMAT_LA8);
 
     ErrorDiffusionDither dither(transparentIndex);
-    dither_rgb_image_to_indexed(dither, 1.0, img, dstImage, palette);
+    dither_rgb_image_to_indexed(dither, 1.0, source, dstImage, palette);
 
     return dstImage;
 }

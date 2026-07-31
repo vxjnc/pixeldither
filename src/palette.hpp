@@ -1,25 +1,26 @@
 #pragma once
 
 #include <cstdint>
+#include <span>
 #include <vector>
 
-#include <godot_cpp/classes/color_palette.hpp>
+#include <godot_cpp/variant/color.hpp>
 
 namespace gd = godot;
 
 class Palette {
 public:
-    void addEntry(const gd::Color& color);
-    int size() const;
-    gd::Color getEntry(int index) const;
+    explicit Palette(std::span<const gd::Color> colors);
 
-    void initBestfit();
+    const gd::Color& getEntry(int index) const;
     int findBestfit(int r, int g, int b, int a, int mask_index) const;
 
 private:
+    void initBestfit();
+
     std::vector<gd::Color> m_colors;
 
-    std::vector<uint32_t> col_diff;
+    std::array<uint32_t, 4 * 128> col_diff{};
     uint32_t* col_diff_g = nullptr;
     uint32_t* col_diff_r = nullptr;
     uint32_t* col_diff_b = nullptr;

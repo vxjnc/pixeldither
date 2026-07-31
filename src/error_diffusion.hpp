@@ -14,8 +14,7 @@ public:
     ErrorDiffusionDither(int transparentIndex);
 
     void start(const gd::Ref<gd::Image>& srcImage, double factor);
-    void finish();
-    int ditherRgbToIndex2D(int x, int y, const Palette palette);
+    int ditherRgbToIndex2D(int x, int y, const Palette& palette);
 
 private:
     gd::Ref<gd::Image> m_srcImage;
