@@ -2,8 +2,6 @@
 
 #include <algorithm>
 
-ErrorDiffusionDither::ErrorDiffusionDither(int transparentIndex) : m_transparentIndex(transparentIndex) {}
-
 void ErrorDiffusionDither::start(const gd::Ref<gd::Image>& srcImage, double factor) {
     m_srcImage = srcImage;
     m_width = 2 + srcImage->get_width();
@@ -34,13 +32,13 @@ int ErrorDiffusionDither::ditherRgbToIndex2D(int x, int y, const Palette& palett
         v[i] = std::clamp(v[i], 0, 255);
     }
 
-    const int index = palette.findBestfit(v[0], v[1], v[2], v[3], m_transparentIndex);
+    const int index = palette.findBestfit(v[0], v[1], v[2], v[3]);
 
     const gd::Color& palColor = palette.getEntry(index);
     int palR = palColor.get_r8(), palG = palColor.get_g8(), palB = palColor.get_b8(),
         palA = palColor.get_a8();
 
-    if (m_transparentIndex == index || palA == 0) {
+    if (palette.transparentIndex == index || palA == 0) {
         palR = color.get_r8();
         palG = color.get_g8();
         palB = color.get_b8();

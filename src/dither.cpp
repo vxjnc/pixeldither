@@ -35,13 +35,7 @@ gd::Ref<gd::Image> DitherProcessor::process(gd::Ref<gd::Image> source) {
     ERR_FAIL_COND_V_MSG(source->get_format() != gd::Image::FORMAT_RGBA8, gd::Ref<gd::Image>(),
                         "DitherProcessor::process: source image must be in FORMAT_RGBA8");
 
-    const gd::Color palette_colors[] = {
-        gd::Color(0, 0, 0, 1),
-        gd::Color(1, 1, 1, 1),
-        gd::Color(0, 0, 0, 0),
-    };
-    Palette palette(palette_colors);
-    constexpr int transparentIndex = 2;
+    Palette palette;
 
     int w = source->get_width();
     int h = source->get_height();
@@ -50,7 +44,7 @@ gd::Ref<gd::Image> DitherProcessor::process(gd::Ref<gd::Image> source) {
     dst_data.resize(w * h * 2); // FORMAT_LA8
     uint8_t* dst_ptr = dst_data.ptrw();
 
-    ErrorDiffusionDither dither(transparentIndex);
+    ErrorDiffusionDither dither;
     dither_rgb_image_to_indexed(dither, 1.0, source, dst_ptr, palette);
 
     return gd::Image::create_from_data(w, h, false, gd::Image::FORMAT_LA8, dst_data);

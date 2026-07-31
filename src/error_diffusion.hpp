@@ -11,8 +11,6 @@ class ErrorDiffusionDither {
 public:
     static constexpr int kChannels = 4;
 
-    ErrorDiffusionDither(int transparentIndex);
-
     void start(const gd::Ref<gd::Image>& srcImage, double factor);
     int ditherRgbToIndex2D(int x, int y, const Palette& palette);
 
@@ -23,5 +21,4 @@ private:
     std::vector<int> m_err[kChannels];
     int m_lastY = -1;
     int m_factor = 0;
-    int m_transparentIndex;
 };

@@ -1,12 +1,6 @@
 #include "palette.hpp"
 
-#include <limits>
-
-Palette::Palette(std::span<const gd::Color> colors) : m_colors(colors.begin(), colors.end()) {
-    initBestfit();
-}
-
-const gd::Color& Palette::getEntry(int index) const { return m_colors[index]; }
+Palette::Palette() { initBestfit(); }
 
 void Palette::initBestfit() {
     col_diff_r = &col_diff[128 * 0];
@@ -23,14 +17,14 @@ void Palette::initBestfit() {
     }
 }
 
-int Palette::findBestfit(int r, int g, int b, int a, int mask_index) const {
+int Palette::findBestfit(int r, int g, int b, int a) const {
     r >>= 3;
     g >>= 3;
     b >>= 3;
     a >>= 3;
 
-    if (a == 0 && mask_index >= 0) {
-        return mask_index;
+    if (a == 0 && transparentIndex >= 0) {
+        return transparentIndex;
     }
 
     int bestfit = 0;
@@ -51,7 +45,7 @@ int Palette::findBestfit(int r, int g, int b, int a, int mask_index) const {
                 coldiff += col_diff_b[((cb >> 3) - b) & 127];
                 if (coldiff < lowest) {
                     coldiff += col_diff_a[((ca >> 3) - a) & 127];
-                    if (coldiff < lowest && i != mask_index) {
+                    if (coldiff < lowest && i != transparentIndex) {
                         if (coldiff == 0) {
                             return i;
                         }
@@ -62,6 +56,5 @@ int Palette::findBestfit(int r, int g, int b, int a, int mask_index) const {
             }
         }
     }
-
     return bestfit;
 }
