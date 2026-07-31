@@ -1,6 +1,8 @@
 import os
 import sys
 
+from SCons.Script import ARGUMENTS, Environment, SConscript, Variables
+
 libname = "pixeldither"
 projectdir = "project"
 
@@ -29,6 +31,11 @@ if env.WhereIs("ccache"):
 
 if env.WhereIs("mold"):
     env.Append(LINKFLAGS=["-fuse-ld=mold"])
+
+if env["platform"] == "windows" and env.get("use_mingw", False) == False:
+    env.Append(CXXFLAGS=["/std:c++20"])
+else:
+    env.Append(CXXFLAGS=["-std=c++20"])
 
 env.Append(CPPPATH=["src/"])
 sources = Glob("src/*.cpp")
