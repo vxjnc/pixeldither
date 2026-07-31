@@ -1,17 +1,15 @@
 #pragma once
 
+#include "rgba8.hpp"
+
 #include <array>
 #include <cstdint>
 
-#include <godot_cpp/variant/color.hpp>
-
-namespace gd = godot;
-
 class Palette {
 public:
-    Palette();
+    Palette() { initBestfit(); }
 
-    const gd::Color& getEntry(int index) const { return m_colors[index]; }
+    RGBA8 getEntry(int index) const { return m_colors[index]; }
     int findBestfit(int r, int g, int b, int a) const;
 
     static constexpr int transparentIndex = 0;
@@ -19,10 +17,10 @@ public:
 private:
     void initBestfit();
 
-    const std::array<gd::Color, 3> m_colors = {
-        gd::Color(0, 0, 0, 0),
-        gd::Color(0, 0, 0, 1),
-        gd::Color(1, 1, 1, 1),
+    static constexpr std::array<RGBA8, 3> m_colors = {
+        RGBA8(0, 0, 0, 0),
+        RGBA8(0, 0, 0, 255),
+        RGBA8(255, 255, 255, 255),
     };
 
     std::array<uint32_t, 4 * 128> col_diff{};

@@ -1,6 +1,6 @@
 #include "palette.hpp"
 
-Palette::Palette() { initBestfit(); }
+#include <limits>
 
 void Palette::initBestfit() {
     col_diff_r = &col_diff[128 * 0];
@@ -31,12 +31,12 @@ int Palette::findBestfit(int r, int g, int b, int a) const {
     int lowest = std::numeric_limits<int>::max();
 
     for (int i = 0; i < m_colors.size(); ++i) {
-        const gd::Color& rgb = m_colors[i];
+        RGBA8 rgba = m_colors[i];
 
-        uint32_t cr = rgb.get_r8();
-        uint32_t cg = rgb.get_g8();
-        uint32_t cb = rgb.get_b8();
-        uint32_t ca = rgb.get_a8();
+        uint32_t cr = rgba.r;
+        uint32_t cg = rgba.g;
+        uint32_t cb = rgba.b;
+        uint32_t ca = rgba.a;
 
         int coldiff = col_diff_g[((cg >> 3) - g) & 127];
         if (coldiff < lowest) {

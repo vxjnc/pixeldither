@@ -2,9 +2,10 @@
 
 #include <algorithm>
 
-void ErrorDiffusionDither::start(const gd::Ref<gd::Image>& srcImage, double factor) {
-    m_srcImage = srcImage;
-    m_width = 2 + srcImage->get_width();
+void ErrorDiffusionDither::start(const uint8_t* srcData, int width, int height, double factor) {
+    m_srcData = srcData;
+    m_srcWidth = width;
+    m_width = 2 + width;
     for (int i = 0; i < kChannels; ++i) {
         m_err[i].resize(m_width * 2, 0);
     }
@@ -24,9 +25,10 @@ int ErrorDiffusionDither::ditherRgbToIndex2D(int x, int y, const Palette& palett
         m_lastY = y;
     }
 
-    const gd::Color& color = m_srcImage->get_pixel(x, y);
+    const uint8_t* srcPixel = &m_srcData[(y * m_srcWidth + x) * 4];
+    int origR = srcPixel[0], origG = srcPixel[1], origB = srcPixel[2], origA = srcPixel[3];
 
-    int v[kChannels] = {color.get_r8(), color.get_g8(), color.get_b8(), color.get_a8()};
+    int v[kChannels] = {origR, origG, origB, origA};
     for (int i = 0; i < kChannels; ++i) {
         v[i] += m_err[i][x + 1];
         v[i] = std::clamp(v[i], 0, 255);
@@ -34,14 +36,13 @@ int ErrorDiffusionDither::ditherRgbToIndex2D(int x, int y, const Palette& palett
 
     const int index = palette.findBestfit(v[0], v[1], v[2], v[3]);
 
-    const gd::Color& palColor = palette.getEntry(index);
-    int palR = palColor.get_r8(), palG = palColor.get_g8(), palB = palColor.get_b8(),
-        palA = palColor.get_a8();
+    RGBA8 palColor = palette.getEntry(index);
+    int palR = palColor.r, palG = palColor.g, palB = palColor.b, palA = palColor.a;
 
     if (palette.transparentIndex == index || palA == 0) {
-        palR = color.get_r8();
-        palG = color.get_g8();
-        palB = color.get_b8();
+        palR = origR;
+        palG = origG;
+        palB = origB;
         palA = 0;
     }
 

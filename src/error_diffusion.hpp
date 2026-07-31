@@ -2,20 +2,19 @@
 
 #include "palette.hpp"
 
-#include <cstring>
+#include <cstdint>
 #include <vector>
-
-#include <godot_cpp/classes/image.hpp>
 
 class ErrorDiffusionDither {
 public:
     static constexpr int kChannels = 4;
 
-    void start(const gd::Ref<gd::Image>& srcImage, double factor);
+    void start(const uint8_t* rgbaData, int width, int height, double factor);
     int ditherRgbToIndex2D(int x, int y, const Palette& palette);
 
 private:
-    gd::Ref<gd::Image> m_srcImage;
+    const uint8_t* m_srcData = nullptr;
+    int m_srcWidth = 0;
 
     int m_width = 0;
     std::vector<int> m_err[kChannels];

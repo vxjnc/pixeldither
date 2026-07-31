@@ -4,25 +4,22 @@
 #include "palette.hpp"
 
 static void dither_rgb_image_to_indexed(ErrorDiffusionDither& algorithm, double factor,
-                                        const gd::Ref<gd::Image>& srcImage, uint8_t* dstData,
+                                        const uint8_t* srcData, int width, int height, uint8_t* dstData,
                                         const Palette& palette) {
-    const int w = srcImage->get_width();
-    const int h = srcImage->get_height();
+    algorithm.start(srcData, width, height, factor);
 
-    algorithm.start(srcImage, factor);
-
-    for (int y = 0; y < h; ++y) {
-        int start = (y & 1) ? w - 1 : 0;
-        int stop = (y & 1) ? -1 : w;
+    for (int y = 0; y < height; ++y) {
+        int start = (y & 1) ? width - 1 : 0;
+        int stop = (y & 1) ? -1 : width;
         int step = (y & 1) ? -1 : 1;
 
         for (int x = start; x != stop; x += step) {
             int index = algorithm.ditherRgbToIndex2D(x, y, palette);
-            const gd::Color& c = palette.getEntry(index);
+            RGBA8 c = palette.getEntry(index);
 
-            uint8_t* out = &dstData[(y * w + x) * 2]; // FORMAT_LA8
-            out[0] = c.get_r8();
-            out[1] = c.get_a8();
+            uint8_t* out = &dstData[(y * width + x) * 2]; // FORMAT_LA8
+            out[0] = c.r;
+            out[1] = c.a;
         }
     }
 }
@@ -45,7 +42,9 @@ gd::Ref<gd::Image> DitherProcessor::process(gd::Ref<gd::Image> source) {
     uint8_t* dst_ptr = dst_data.ptrw();
 
     ErrorDiffusionDither dither;
-    dither_rgb_image_to_indexed(dither, 1.0, source, dst_ptr, palette);
+    gd::PackedByteArray src_data = source->get_data();
+    const uint8_t* src_ptr = src_data.ptr();
+    dither_rgb_image_to_indexed(dither, 1.0, src_ptr, w, h, dst_ptr, palette);
 
     return gd::Image::create_from_data(w, h, false, gd::Image::FORMAT_LA8, dst_data);
 }
