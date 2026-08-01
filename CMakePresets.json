@@ -1,0 +1,31 @@
+{
+    "version": 6,
+    "configurePresets": [
+        {
+            "name": "reldebinfo",
+            "generator": "Ninja",
+            "binaryDir": "${sourceDir}/build/reldebinfo",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "RelWithDebInfo"
+            }
+        },
+        {
+            "name": "release",
+            "generator": "Ninja",
+            "binaryDir": "${sourceDir}/build/release",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Release"
+            }
+        }
+    ],
+    "buildPresets": [
+        {
+            "name": "reldebinfo",
+            "configurePreset": "reldebinfo"
+        },
+        {
+            "name": "release",
+            "configurePreset": "release"
+        }
+    ]
+}

@@ -4,10 +4,8 @@
 
 # Ignore library files but not the gdextension file
 /bin/**
+build/
 !project/bin/*.gdextension
-
-# Ignore scons database
-.sconsign*.dblite
 
 # Ignore custom.py
 custom.py
