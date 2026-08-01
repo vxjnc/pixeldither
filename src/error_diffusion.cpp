@@ -32,14 +32,13 @@ int ErrorDiffusionDither::ditherRgbToIndex2D(int x, int y, const Palette& palett
     const int index = palette.findBestfit(v);
 
     LA8 palColor = palette.getEntry(index);
-    int palL = palColor.l, palA = palColor.a;
 
-    if (palette.transparentIndex == index || palA == 0) {
-        palL = srcPixel.l;
-        palA = 0;
+    if (palette.transparentIndex == index || palColor.a == 0) {
+        palColor.l = srcPixel.l;
+        palColor.a = 0;
     }
 
-    const int quantError[kChannels] = {v.l - palL, v.a - palA};
+    const int quantError[kChannels] = {v.l - palColor.l, v.a - palColor.a};
 
     for (int i = 0; i < kChannels; ++i) {
         int* err = &m_err[i][x];
