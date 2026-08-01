@@ -8,21 +8,19 @@ void DitherProcessor::_bind_methods() {
 }
 
 gd::Ref<gd::Image> DitherProcessor::process(gd::Ref<gd::Image> source) {
-    ERR_FAIL_COND_V_MSG(source->get_format() != gd::Image::FORMAT_RGBA8, gd::Ref<gd::Image>(),
-                        "DitherProcessor::process: source image must be in FORMAT_RGBA8");
-
-    auto t0 = std::chrono::high_resolution_clock::now();
+    ERR_FAIL_COND_V_MSG(source->get_format() != gd::Image::FORMAT_LA8, gd::Ref<gd::Image>(),
+                        "DitherProcessor::process: source image must be in FORMAT_LA8");
 
     Palette palette;
     int w = source->get_width();
     int h = source->get_height();
 
     gd::PackedByteArray src_data = source->get_data();
-    const uint8_t* src_ptr = src_data.ptr();
+    const LA8* src_ptr = reinterpret_cast<const LA8*>(src_data.ptr());
 
     gd::PackedByteArray dst_data;
-    dst_data.resize(w * h * 2);
-    uint8_t* dst_ptr = dst_data.ptrw();
+    dst_data.resize(w * h * sizeof(LA8));
+    LA8* dst_ptr = reinterpret_cast<LA8*>(dst_data.ptrw());
 
     ErrorDiffusionDither dither;
     dither_rgb_image_to_indexed(dither, 1.0, src_ptr, w, h, dst_ptr, palette);
@@ -33,8 +31,8 @@ gd::Ref<gd::Image> DitherProcessor::process(gd::Ref<gd::Image> source) {
 }
 
 void DitherProcessor::dither_rgb_image_to_indexed(ErrorDiffusionDither& algorithm, double factor,
-                                                  const uint8_t* srcData, int width, int height,
-                                                  uint8_t* dstData, const Palette& palette) {
+                                                  const LA8* srcData, int width, int height, LA8* dstData,
+                                                  const Palette& palette) {
     algorithm.start(srcData, width, height, factor);
 
     for (int y = 0; y < height; ++y) {
@@ -46,11 +44,7 @@ void DitherProcessor::dither_rgb_image_to_indexed(ErrorDiffusionDither& algorith
 
         for (int x = start; x != stop; x += step) {
             int index = algorithm.ditherRgbToIndex2D(x, y, palette);
-            RGBA8 c = palette.getEntry(index);
-
-            uint8_t* out = &dstData[(y * width + x) * 2]; // FORMAT_LA8
-            out[0] = c.r;
-            out[1] = c.a;
+            dstData[y * width + x] = palette.getEntry(index);
         }
     }
 }

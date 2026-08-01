@@ -2,7 +2,7 @@
 
 #include <algorithm>
 
-void ErrorDiffusionDither::start(const uint8_t* srcData, int width, int height, double factor) {
+void ErrorDiffusionDither::start(const LA8* srcData, int width, int height, double factor) {
     m_srcData = srcData;
     m_srcWidth = width;
     m_width = 2 + width;
@@ -25,28 +25,26 @@ void ErrorDiffusionDither::beginRow(int y) {
 }
 
 int ErrorDiffusionDither::ditherRgbToIndex2D(int x, int y, const Palette& palette) {
-    const uint8_t* srcPixel = &m_srcData[(y * m_srcWidth + x) * 4];
-    int origR = srcPixel[0], origG = srcPixel[1], origB = srcPixel[2], origA = srcPixel[3];
+    const LA8& srcPixel = m_srcData[y * m_srcWidth + x];
+    int origL = srcPixel.l, origA = srcPixel.a;
 
-    int v[kChannels] = {origR, origG, origB, origA};
+    int v[kChannels] = {origL, origA};
     for (int i = 0; i < kChannels; ++i) {
         v[i] += m_err[i][x + 1];
         v[i] = std::clamp(v[i], 0, 255);
     }
 
-    const int index = palette.findBestfit(v[0], v[1], v[2], v[3]);
+    const int index = palette.findBestfit(v[0], v[1]);
 
-    RGBA8 palColor = palette.getEntry(index);
-    int palR = palColor.r, palG = palColor.g, palB = palColor.b, palA = palColor.a;
+    LA8 palColor = palette.getEntry(index);
+    int palL = palColor.l, palA = palColor.a;
 
     if (palette.transparentIndex == index || palA == 0) {
-        palR = origR;
-        palG = origG;
-        palB = origB;
+        palL = origL;
         palA = 0;
     }
 
-    const int quantError[kChannels] = {v[0] - palR, v[1] - palG, v[2] - palB, v[3] - palA};
+    const int quantError[kChannels] = {v[0] - palL, v[1] - palA};
 
     for (int i = 0; i < kChannels; ++i) {
         int* err = &m_err[i][x];
