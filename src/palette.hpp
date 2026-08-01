@@ -10,7 +10,7 @@ public:
     Palette() { initBestfit(); }
 
     LA8 getEntry(int index) const { return m_colors[index]; }
-    int findBestfit(int l, int a) const;
+    uint32_t findBestfit(LA8 color) const;
 
     static constexpr int transparentIndex = 0;
 

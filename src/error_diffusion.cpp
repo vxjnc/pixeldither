@@ -24,25 +24,22 @@ void ErrorDiffusionDither::beginRow(int y) {
 
 int ErrorDiffusionDither::ditherRgbToIndex2D(int x, int y, const Palette& palette) {
     const LA8& srcPixel = m_srcData[y * m_srcWidth + x];
-    int origL = srcPixel.l, origA = srcPixel.a;
 
-    int v[kChannels] = {origL, origA};
-    for (int i = 0; i < kChannels; ++i) {
-        v[i] += m_err[i][x + 1];
-        v[i] = std::clamp(v[i], 0, 255);
-    }
+    LA8 v = srcPixel;
+    v.l = std::clamp(v.l + m_err[0][x + 1], 0, 255);
+    v.a = std::clamp(v.a + m_err[1][x + 1], 0, 255);
 
-    const int index = palette.findBestfit(v[0], v[1]);
+    const int index = palette.findBestfit(v);
 
     LA8 palColor = palette.getEntry(index);
     int palL = palColor.l, palA = palColor.a;
 
     if (palette.transparentIndex == index || palA == 0) {
-        palL = origL;
+        palL = srcPixel.l;
         palA = 0;
     }
 
-    const int quantError[kChannels] = {v[0] - palL, v[1] - palA};
+    const int quantError[kChannels] = {v.l - palL, v.a - palA};
 
     for (int i = 0; i < kChannels; ++i) {
         int* err = &m_err[i][x];
