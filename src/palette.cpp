@@ -31,6 +31,10 @@ int Palette::findBestfit(int r, int g, int b, int a) const {
     int lowest = std::numeric_limits<int>::max();
 
     for (int i = 0; i < m_colors.size(); ++i) {
+        if (i == transparentIndex) {
+            continue;
+        }
+
         RGBA8 rgba = m_colors[i];
 
         uint32_t cr = rgba.r;
@@ -45,7 +49,7 @@ int Palette::findBestfit(int r, int g, int b, int a) const {
                 coldiff += col_diff_b[((cb >> 3) - b) & 127];
                 if (coldiff < lowest) {
                     coldiff += col_diff_a[((ca >> 3) - a) & 127];
-                    if (coldiff < lowest && i != transparentIndex) {
+                    if (coldiff < lowest) {
                         if (coldiff == 0) {
                             return i;
                         }
@@ -56,5 +60,6 @@ int Palette::findBestfit(int r, int g, int b, int a) const {
             }
         }
     }
+
     return bestfit;
 }
