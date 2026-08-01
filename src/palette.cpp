@@ -32,22 +32,19 @@ int Palette::findBestfit(int r, int g, int b, int a) const {
 
         RGBA8 rgba = m_colors[i];
 
-        int coldiff = col_diff_r[((rgba.r >> 3) - r) & 127];
+        int dr = ((rgba.r >> 3) - r) & 127;
+        int dg = ((rgba.g >> 3) - g) & 127;
+        int db = ((rgba.b >> 3) - b) & 127;
+        int da = ((rgba.a >> 3) - a) & 127;
+
+        int coldiff = col_diff_r[dr] + col_diff_g[dg] + col_diff_b[db] + col_diff_a[da];
+
         if (coldiff < lowest) {
-            coldiff += col_diff_g[((rgba.g >> 3) - g) & 127];
-            if (coldiff < lowest) {
-                coldiff += col_diff_b[((rgba.b >> 3) - b) & 127];
-                if (coldiff < lowest) {
-                    coldiff += col_diff_a[((rgba.a >> 3) - a) & 127];
-                    if (coldiff < lowest) {
-                        if (coldiff == 0) {
-                            return i;
-                        }
-                        bestfit = i;
-                        lowest = coldiff;
-                    }
-                }
+            if (coldiff == 0) {
+                return i;
             }
+            bestfit = i;
+            lowest = coldiff;
         }
     }
 
