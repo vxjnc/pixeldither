@@ -41,6 +41,10 @@ else:
         "-std=c++20"
     ]
 
+
+if env["target"] in ["template_debug", "editor"]:
+    env.Append(CXXFLAGS=["-fno-omit-frame-pointer"])
+
 env.Append(CPPPATH=["src/"])
 sources = Glob("src/*.cpp")
 

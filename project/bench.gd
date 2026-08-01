@@ -5,7 +5,7 @@ func _initialize():
     var test_image = Image.create(2048, 2048, false, Image.FORMAT_RGBA8)
     test_image.fill(Color(0.5, 0.5, 0.5, 1.0))
 
-    var sizes = [64, 128, 256, 512, 1024]
+    var sizes = [64, 128, 256, 512, 1024, 2048]
     var iterations = 10
     var warmup_iterations = 3
 
