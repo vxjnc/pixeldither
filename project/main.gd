@@ -33,6 +33,7 @@ func _update_texture(target_size: Vector2i) -> void:
 
     var resized = original_image.duplicate()
     resized.resize(target_size.x, target_size.y, Image.INTERPOLATE_NEAREST)
+    resized.convert(Image.FORMAT_LA8)
 
     var time_start = Time.get_ticks_msec()
     var result_image = processor.process(resized)

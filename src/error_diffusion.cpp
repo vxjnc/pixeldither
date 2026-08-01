@@ -9,7 +9,6 @@ void ErrorDiffusionDither::start(const LA8* srcData, int width, int height, doub
     for (int i = 0; i < kChannels; ++i) {
         m_err[i].resize(m_width * 2, 0);
     }
-    m_lastY = -1;
     m_factor = int(factor * 100.0);
 }
 
@@ -21,7 +20,6 @@ void ErrorDiffusionDither::beginRow(int y) {
         std::copy(row1, end1, row0);
         std::fill(row1, end1, 0);
     }
-    m_lastY = y;
 }
 
 int ErrorDiffusionDither::ditherRgbToIndex2D(int x, int y, const Palette& palette) {

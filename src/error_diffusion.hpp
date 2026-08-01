@@ -18,6 +18,5 @@ private:
 
     int m_width = 0;
     std::vector<int> m_err[kChannels];
-    int m_lastY = -1;
     int m_factor = 0;
 };
