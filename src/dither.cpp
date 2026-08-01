@@ -38,6 +38,8 @@ void DitherProcessor::dither_rgb_image_to_indexed(ErrorDiffusionDither& algorith
     algorithm.start(srcData, width, height, factor);
 
     for (int y = 0; y < height; ++y) {
+        algorithm.beginRow(y);
+
         int start = (y & 1) ? width - 1 : 0;
         int stop = (y & 1) ? -1 : width;
         int step = (y & 1) ? -1 : 1;

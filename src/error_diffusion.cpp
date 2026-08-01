@@ -13,18 +13,18 @@ void ErrorDiffusionDither::start(const uint8_t* srcData, int width, int height, 
     m_factor = int(factor * 100.0);
 }
 
-int ErrorDiffusionDither::ditherRgbToIndex2D(int x, int y, const Palette& palette) {
-    if (y != m_lastY) {
-        for (int i = 0; i < kChannels; ++i) {
-            int* row0 = &m_err[i][0];
-            int* row1 = row0 + m_width;
-            int* end1 = row1 + m_width;
-            std::copy(row1, end1, row0);
-            std::fill(row1, end1, 0);
-        }
-        m_lastY = y;
+void ErrorDiffusionDither::beginRow(int y) {
+    for (int i = 0; i < kChannels; ++i) {
+        int* row0 = &m_err[i][0];
+        int* row1 = row0 + m_width;
+        int* end1 = row1 + m_width;
+        std::copy(row1, end1, row0);
+        std::fill(row1, end1, 0);
     }
+    m_lastY = y;
+}
 
+int ErrorDiffusionDither::ditherRgbToIndex2D(int x, int y, const Palette& palette) {
     const uint8_t* srcPixel = &m_srcData[(y * m_srcWidth + x) * 4];
     int origR = srcPixel[0], origG = srcPixel[1], origB = srcPixel[2], origA = srcPixel[3];
 
@@ -63,7 +63,7 @@ int ErrorDiffusionDither::ditherRgbToIndex2D(int x, int y, const Palette& palett
             err[m_width] += d;
         }
         else {
-            err[+2] += a;
+            err[2] += a;
             err[m_width] += b;
             err[m_width + 1] += c;
             err[m_width + 2] += d;

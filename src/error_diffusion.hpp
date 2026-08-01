@@ -10,6 +10,7 @@ public:
     static constexpr int kChannels = 4;
 
     void start(const uint8_t* rgbaData, int width, int height, double factor);
+    void beginRow(int y);
     int ditherRgbToIndex2D(int x, int y, const Palette& palette);
 
 private:
