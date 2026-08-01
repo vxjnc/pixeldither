@@ -23,9 +23,8 @@ private:
         RGBA8(255, 255, 255, 255),
     };
 
-    std::array<uint32_t, 4 * 128> col_diff{};
-    uint32_t* col_diff_r = nullptr;
-    uint32_t* col_diff_g = nullptr;
-    uint32_t* col_diff_b = nullptr;
-    uint32_t* col_diff_a = nullptr;
+    std::array<uint32_t, 128> col_diff_r{};
+    std::array<uint32_t, 128> col_diff_g{};
+    std::array<uint32_t, 128> col_diff_b{};
+    std::array<uint32_t, 128> col_diff_a{};
 };
