@@ -3,6 +3,8 @@
 #include "error_diffusion.hpp"
 #include "palette.hpp"
 
+#include <ranges>
+
 void DitherProcessor::_bind_methods() {
     gd::ClassDB::bind_method(gd::D_METHOD("process", "source"), &DitherProcessor::process);
 }
@@ -38,13 +40,17 @@ void DitherProcessor::dither_rgb_image_to_indexed(ErrorDiffusionDither& algorith
     for (int y = 0; y < height; ++y) {
         algorithm.beginRow(y);
 
-        int start = (y & 1) ? width - 1 : 0;
-        int stop = (y & 1) ? -1 : width;
-        int step = (y & 1) ? -1 : 1;
+        auto process = [&](auto row) {
+            for (int x : row) {
+                dstData[y * width + x] = palette.getEntry(algorithm.ditherRgbToIndex2D(x, y, palette));
+            }
+        };
 
-        for (int x = start; x != stop; x += step) {
-            int index = algorithm.ditherRgbToIndex2D(x, y, palette);
-            dstData[y * width + x] = palette.getEntry(index);
+        if (y & 1) {
+            process(std::views::iota(0, width) | std::views::reverse);
+        }
+        else {
+            process(std::views::iota(0, width));
         }
     }
 }
