@@ -13,7 +13,7 @@ endif()
 
 add_subdirectory(godot-cpp)
 
-file(GLOB SOURCES src/*.cpp)
+file(GLOB SOURCES src/**/*.cpp)
 
 add_library(pixeldither SHARED ${SOURCES})
 target_include_directories(pixeldither PRIVATE src)

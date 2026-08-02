@@ -1,10 +1,10 @@
 #include "register_types.hpp"
 
-#include "dither.hpp"
-
 #include <gdextension_interface.h>
 #include <godot_cpp/core/defs.hpp>
 #include <godot_cpp/godot.hpp>
+
+#include "core/dither.hpp"
 
 using namespace godot;
 
