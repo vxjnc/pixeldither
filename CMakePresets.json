@@ -3,7 +3,6 @@
     "configurePresets": [
         {
             "name": "reldebinfo",
-            "generator": "Ninja",
             "binaryDir": "${sourceDir}/build/reldebinfo",
             "cacheVariables": {
                 "CMAKE_BUILD_TYPE": "RelWithDebInfo"
@@ -11,10 +10,17 @@
         },
         {
             "name": "release",
-            "generator": "Ninja",
             "binaryDir": "${sourceDir}/build/release",
             "cacheVariables": {
                 "CMAKE_BUILD_TYPE": "Release"
+            }
+        },
+        {
+            "name": "bench",
+            "binaryDir": "${sourceDir}/build/bench",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "RelWithDebInfo",
+                "BUILD_BENCHMARKS": "ON"
             }
         }
     ],
@@ -26,6 +32,13 @@
         {
             "name": "release",
             "configurePreset": "release"
+        },
+        {
+            "name": "bench",
+            "configurePreset": "bench",
+            "targets": [
+                "pixeldither_bench"
+            ]
         }
     ]
 }

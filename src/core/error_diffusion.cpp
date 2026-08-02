@@ -1,6 +1,7 @@
 #include "error_diffusion.hpp"
 
 #include <algorithm>
+#include <ranges>
 
 void ErrorDiffusionDither::start(const LA8* srcData, int width, int height, double factor) {
     m_srcData = srcData;
@@ -63,4 +64,26 @@ int ErrorDiffusionDither::ditherRgbToIndex2D(int x, int y, const Palette& palett
     }
 
     return index;
+}
+
+void ErrorDiffusionDither::dither_image_to_indexed(double factor, const LA8* srcData, int width, int height,
+                                                   LA8* dstData, const Palette& palette) {
+    start(srcData, width, height, factor);
+
+    for (int y = 0; y < height; ++y) {
+        beginRow(y);
+
+        auto process = [&](auto row) {
+            for (int x : row) {
+                dstData[y * width + x] = palette.getEntry(ditherRgbToIndex2D(x, y, palette));
+            }
+        };
+
+        if (y & 1) {
+            process(std::views::iota(0, width) | std::views::reverse);
+        }
+        else {
+            process(std::views::iota(0, width));
+        }
+    }
 }

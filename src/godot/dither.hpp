@@ -1,8 +1,8 @@
 #pragma once
-#include "rgba8.hpp"
-
 #include <godot_cpp/classes/image.hpp>
 #include <godot_cpp/classes/ref_counted.hpp>
+
+#include "core/rgba8.hpp"
 
 namespace gd = godot;
 
@@ -11,9 +11,6 @@ class ErrorDiffusionDither;
 
 class DitherProcessor : public gd::RefCounted {
     GDCLASS(DitherProcessor, gd::RefCounted)
-
-    void dither_rgb_image_to_indexed(ErrorDiffusionDither& algorithm, double factor, const LA8* srcData,
-                                     int width, int height, LA8* dstData, const Palette& palette);
 
 protected:
     static void _bind_methods();
