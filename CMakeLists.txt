@@ -12,10 +12,8 @@ if(CCACHE_PROGRAM)
 endif()
 
 # --- 1. Pure C++ core library ---
-file(GLOB CORE_SOURCES src/core/*.cpp)
-
-add_library(pixeldither_core STATIC ${CORE_SOURCES})
-target_include_directories(pixeldither_core PUBLIC src)
+add_library(pixeldither_core INTERFACE)
+target_include_directories(pixeldither_core INTERFACE src)
 
 # --- 2. Godot GDExtension library ---
 add_subdirectory(godot-cpp)
