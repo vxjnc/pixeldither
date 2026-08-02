@@ -1,5 +1,4 @@
 #include <cstdint>
-#include <ranges>
 #include <vector>
 
 #include <benchmark/benchmark.h>
@@ -8,21 +7,38 @@
 #include "core/palette.hpp"
 #include "core/rgba8.hpp"
 
-static void BM_ErrorDiffusion(benchmark::State& state) {
-    const int width = static_cast<int>(state.range(0));
-    const int height = static_cast<int>(state.range(1));
-
-    std::vector<LA8> src_pixels(width * height);
-    std::vector<LA8> dst_pixels(width * height);
-
-    for (size_t i = 0; i < src_pixels.size(); ++i) {
-        src_pixels[i].l = static_cast<uint8_t>(i % 256);
-        src_pixels[i].a = 255;
-    }
-
+class ErrorDiffusionBenchmark : public benchmark::Fixture {
+public:
+    int width = 0;
+    int height = 0;
+    std::vector<LA8> src_pixels;
+    std::vector<LA8> dst_pixels;
     Palette palette;
     ErrorDiffusionDither dither;
 
+    void SetUp(const ::benchmark::State& state) override {
+        const int dim = static_cast<int>(state.range(0));
+        width = dim;
+        height = dim;
+
+        src_pixels.resize(width * height);
+        dst_pixels.resize(width * height);
+
+        for (size_t i = 0; i < src_pixels.size(); ++i) {
+            src_pixels[i].l = static_cast<uint8_t>(i % 256);
+            src_pixels[i].a = 255;
+        }
+    }
+
+    void TearDown(const ::benchmark::State&) override {
+        src_pixels.clear();
+        src_pixels.shrink_to_fit();
+        dst_pixels.clear();
+        dst_pixels.shrink_to_fit();
+    }
+};
+
+BENCHMARK_DEFINE_F(ErrorDiffusionBenchmark, Process)(benchmark::State& state) {
     for (auto _ : state) {
         dither.dither_image_to_indexed(1.0, src_pixels.data(), width, height, dst_pixels.data(), palette);
 
@@ -33,15 +49,12 @@ static void BM_ErrorDiffusion(benchmark::State& state) {
 
     state.SetItemsProcessed(state.iterations() * width * height);
     state.SetBytesProcessed(state.iterations() * width * height * sizeof(LA8));
+    state.counters["Dimension"] = static_cast<double>(width);
 }
 
-BENCHMARK(BM_ErrorDiffusion)
-    ->Args({64, 64})
-    ->Args({128, 128})
-    ->Args({256, 256})
-    ->Args({512, 512})
-    ->Args({1024, 1024})
-    ->Args({2048, 2048})
-    ->Unit(benchmark::kMillisecond);
+BENCHMARK_REGISTER_F(ErrorDiffusionBenchmark, Process)
+    ->Unit(benchmark::kMillisecond)
+    ->RangeMultiplier(2)
+    ->Range(64, 2048);
 
 BENCHMARK_MAIN();
