@@ -37,7 +37,7 @@ jobs:
           ${{ matrix.platform == 'windows' && '-DCMAKE_CXX_COMPILER=cl -DCMAKE_C_COMPILER=cl' || '' }}
 
       - name: Build (reldebinfo)
-        run: cmake --build --preset reldebinfo --parallel 2
+        run: cmake --build --preset reldebinfo --config RelWithDebInfo
 
       - name: Configure (release)
         run: >
@@ -46,7 +46,7 @@ jobs:
           ${{ matrix.platform == 'windows' && '-DCMAKE_CXX_COMPILER=cl -DCMAKE_C_COMPILER=cl' || '' }}
 
       - name: Build (release)
-        run: cmake --build --preset release --parallel 2
+        run: cmake --build --preset release --config Release
 
       - name: Upload binaries
         uses: actions/upload-artifact@v4
