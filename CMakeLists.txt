@@ -65,10 +65,10 @@ set_target_properties(pixeldither PROPERTIES
 
 # --- Copy compiled binary to Godot project folder ---
 add_custom_command(TARGET pixeldither POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E make_directory "${CMAKE_SOURCE_DIR}/project/bin/${PLATFORM_LOWER}"
+    COMMAND ${CMAKE_COMMAND} -E make_directory "${CMAKE_SOURCE_DIR}/project/addons/pixeldither/bin/${PLATFORM_LOWER}"
     COMMAND ${CMAKE_COMMAND} -E copy
         "$<TARGET_FILE:pixeldither>"
-        "${CMAKE_SOURCE_DIR}/project/bin/${PLATFORM_LOWER}/"
+        "${CMAKE_SOURCE_DIR}/project/addons/pixeldither/bin/${PLATFORM_LOWER}/"
 )
 
 # --- 3. Google Benchmark (optional target) ---

@@ -1,0 +1,76 @@
+name: Build GDExtension
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+            platform: linux
+          - os: windows-latest
+            platform: windows
+          - os: macos-latest
+            platform: macos
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Configure (debug)
+        run: >
+          cmake -B build-debug -S .
+          -DCMAKE_BUILD_TYPE=Debug
+          -DCMAKE_SYSTEM_NAME=${{ matrix.platform }}
+
+      - name: Build (debug)
+        run: cmake --build build-debug --config Debug
+
+      - name: Configure (release)
+        run: >
+          cmake -B build-release -S .
+          -DCMAKE_BUILD_TYPE=Release
+          -DCMAKE_SYSTEM_NAME=${{ matrix.platform }}
+
+      - name: Build (release)
+        run: cmake --build build-release --config Release
+
+      - name: Upload binaries
+        uses: actions/upload-artifact@v4
+        with:
+          name: pixeldither-${{ matrix.platform }}
+          path: project/addons/pixeldither/bin/${{ matrix.platform }}/
+
+  release:
+    needs: build
+    if: startsWith(github.ref, 'refs/tags/')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download all binaries
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: Assemble package
+        run: |
+          mkdir -p release/addons/pixeldither/bin
+          cp -r artifacts/pixeldither-linux/linux release/addons/pixeldither/bin/
+          cp -r artifacts/pixeldither-windows/windows release/addons/pixeldither/bin/
+          cp -r artifacts/pixeldither-macos/macos release/addons/pixeldither/bin/
+          cp project/addons/pixeldither/pixeldither.gdextension release/addons/pixeldither/
+          cd release && zip -r ../pixeldither.zip addons
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: pixeldither.zip
