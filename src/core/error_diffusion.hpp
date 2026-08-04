@@ -54,11 +54,10 @@ public:
         for (int i = 0; i < kChannels; ++i) {
             const int q = (quantError[i] * m_factor) / 100;
 
-            const int corr = (q >> 31) & 15;
-            const int a = ((q * 7) + corr) >> 4;
-            const int b = ((q * 3) + corr) >> 4;
-            const int c = ((q * 5) + corr) >> 4;
-            const int d = (q + corr) >> 4;
+            const int a = (q * 7) >> 4;
+            const int b = (q * 3) >> 4;
+            const int c = (q * 5) >> 4;
+            const int d = q >> 4;
 
             int* RESTRICT next_row = m_err.next[i].data();
 
