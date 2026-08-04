@@ -17,6 +17,8 @@
 
 class ErrorDiffusionDither {
 public:
+    enum class ScanDirection { Forward, Reverse };
+
     static constexpr int kChannels = sizeof(LA8);
 
     void start(const LA8* RESTRICT srcData, int width, int height, double factor) {
@@ -29,7 +31,7 @@ public:
 
     void beginRow(int y) { m_err.swapAndResetNext(); }
 
-    int ditherRgbToIndex2D(int x, int y, const Palette& palette) {
+    template <ScanDirection Dir> int ditherRgbToIndex2D(int x, int y, const Palette& palette) {
         const LA8& srcPixel = m_srcData[y * m_srcWidth + x];
 
         LA8 v = srcPixel;
@@ -54,7 +56,7 @@ public:
             const int c = q * 5 / 16;
             const int d = q * 1 / 16;
 
-            if (y & 1) {
+            if constexpr (Dir == ScanDirection::Reverse) {
                 m_err.curr[i][x] += a;
                 m_err.next[i][x + 2] += b;
                 m_err.next[i][x + 1] += c;
@@ -75,20 +77,30 @@ public:
                                  LA8* RESTRICT dstData, const Palette& palette) {
         start(srcData, width, height, factor);
 
-        for (int y = 0; y < height; ++y) {
+        int y = 0;
+        for (; y + 1 < height; ++y) {
+            // --- 1. Even row (y) -> Forward scan ---
             beginRow(y);
-
-            auto process = [&](auto row) {
-                for (int x : row) {
-                    dstData[y * width + x] = palette.getEntry(ditherRgbToIndex2D(x, y, palette));
-                }
-            };
-
-            if (y & 1) {
-                process(std::views::iota(0, width) | std::views::reverse);
+            for (int x = 0; x < width; ++x) {
+                dstData[y * width + x] =
+                    palette.getEntry(ditherRgbToIndex2D<ScanDirection::Forward>(x, y, palette));
             }
-            else {
-                process(std::views::iota(0, width));
+
+            // --- 2. Odd row (y + 1) -> Reverse scan ---
+            ++y;
+            beginRow(y);
+            for (int x = width - 1; x >= 0; --x) {
+                dstData[y * width + x] =
+                    palette.getEntry(ditherRgbToIndex2D<ScanDirection::Reverse>(x, y, palette));
+            }
+        }
+
+        // Tail: handle the remaining (even) row if height is odd
+        if (y < height) {
+            beginRow(y);
+            for (int x = 0; x < width; ++x) {
+                dstData[y * width + x] =
+                    palette.getEntry(ditherRgbToIndex2D<ScanDirection::Forward>(x, y, palette));
             }
         }
     }
