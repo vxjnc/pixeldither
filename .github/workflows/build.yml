@@ -25,13 +25,10 @@ jobs:
         with:
           submodules: recursive
 
-      - name: Cache godot-cpp build
-        uses: actions/cache@v4
+      - name: Setup ccache
+        uses: hendrikmuhs/ccache-action@v1.2
         with:
-          path: build
-          key: ${{ matrix.platform }}-godotcpp-${{ matrix.platform == 'windows' && hashFiles('godot-cpp/**', 'CMakeLists.txt') || hashFiles('godot-cpp/**') }}
-          restore-keys: |
-            ${{ matrix.platform }}-godotcpp-
+          key: ${{ matrix.platform }}-pixeldither
 
       - name: Configure (reldebinfo)
         run: >
