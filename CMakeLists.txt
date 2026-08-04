@@ -32,6 +32,10 @@ if(CCACHE_PROGRAM)
     set(CMAKE_CXX_COMPILER_LAUNCHER ${CCACHE_PROGRAM})
 endif()
 
+if(MSVC)
+    add_compile_options(/vmg)
+endif()
+
 # --- 1. Pure C++ core library ---
 add_library(pixeldither_core INTERFACE)
 target_include_directories(pixeldither_core INTERFACE src)
