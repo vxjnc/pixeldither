@@ -28,30 +28,22 @@ jobs:
       - name: Cache godot-cpp build
         uses: actions/cache@v4
         with:
-          path: |
-            build-debug
-            build-release
-          key: ${{ matrix.platform }}-godotcpp-${{ hashFiles('godot-cpp/**') }}
+          path: build
+          key: ${{ matrix.platform }}-godotcpp-${{ matrix.platform == 'windows' && hashFiles('godot-cpp/**', 'CMakeLists.txt') || hashFiles('godot-cpp/**') }}
           restore-keys: |
             ${{ matrix.platform }}-godotcpp-
 
-      - name: Configure (debug)
-        run: >
-          cmake -B build-debug -S .
-          -DCMAKE_BUILD_TYPE=Debug
-          -DCMAKE_SYSTEM_NAME=${{ matrix.platform }}
+      - name: Configure (reldebinfo)
+        run: cmake --preset reldebinfo -DCMAKE_SYSTEM_NAME=${{ matrix.platform }}
 
-      - name: Build (debug)
-        run: cmake --build build-debug --config Debug
+      - name: Build (reldebinfo)
+        run: cmake --build --preset reldebinfo --parallel
 
       - name: Configure (release)
-        run: >
-          cmake -B build-release -S .
-          -DCMAKE_BUILD_TYPE=Release
-          -DCMAKE_SYSTEM_NAME=${{ matrix.platform }}
+        run: cmake --preset release -DCMAKE_SYSTEM_NAME=${{ matrix.platform }}
 
       - name: Build (release)
-        run: cmake --build build-release --config Release
+        run: cmake --build --preset release --parallel
 
       - name: Upload binaries
         uses: actions/upload-artifact@v4
