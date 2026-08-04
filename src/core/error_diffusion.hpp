@@ -7,11 +7,19 @@
 
 #include "core/error_buffer.hpp"
 
+#if defined(__GNUC__) || defined(__clang__)
+#define RESTRICT __restrict__
+#elif defined(_MSC_VER)
+#define RESTRICT __restrict
+#else
+#define RESTRICT
+#endif
+
 class ErrorDiffusionDither {
 public:
     static constexpr int kChannels = sizeof(LA8);
 
-    void start(const LA8* srcData, int width, int height, double factor) {
+    void start(const LA8* RESTRICT srcData, int width, int height, double factor) {
         m_srcData = srcData;
         m_srcWidth = width;
         m_width = 2 + width;
@@ -63,8 +71,8 @@ public:
         return index;
     }
 
-    void dither_image_to_indexed(double factor, const LA8* srcData, int width, int height, LA8* dstData,
-                                 const Palette& palette) {
+    void dither_image_to_indexed(double factor, const LA8* RESTRICT srcData, int width, int height,
+                                 LA8* RESTRICT dstData, const Palette& palette) {
         start(srcData, width, height, factor);
 
         for (int y = 0; y < height; ++y) {
@@ -86,7 +94,7 @@ public:
     }
 
 private:
-    const LA8* m_srcData = nullptr;
+    const LA8* RESTRICT m_srcData = nullptr;
     int m_srcWidth = 0;
 
     int m_width = 0;

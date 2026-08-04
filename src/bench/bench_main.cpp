@@ -53,7 +53,7 @@ BENCHMARK_DEFINE_F(ErrorDiffusionBenchmark, Process)(benchmark::State& state) {
 }
 
 BENCHMARK_REGISTER_F(ErrorDiffusionBenchmark, Process)
-    ->Unit(benchmark::kMillisecond)
+    ->Unit(benchmark::kNanosecond)
     ->RangeMultiplier(2)
     ->Range(64, 2048);
 
