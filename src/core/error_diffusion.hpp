@@ -1,10 +1,9 @@
 #pragma once
 
-#include "rgba8.hpp"
-
 #include <algorithm>
 
 #include "core/error_buffer.hpp"
+#include "core/la8.hpp"
 
 #if defined(__GNUC__) || defined(__clang__)
 #define RESTRICT __restrict__
@@ -32,8 +31,8 @@ public:
 
     void beginRow(int y) { m_err.swapAndResetNext(); }
 
-    template <ScanDirection Dir> int ditherRgbToIndex2D(int x, int y) {
-        const LA8& srcPixel = m_srcData[y * m_srcWidth + x];
+    template <ScanDirection Dir> LA8 ditherRgbToIndex2D(int x, int y) {
+        const LA8 srcPixel = m_srcData[y * m_srcWidth + x];
 
         const int v_l = std::clamp(srcPixel.l + m_err.curr[0][x + 1], 0, 255);
         const int v_a = std::clamp(srcPixel.a + m_err.curr[1][x + 1], 0, 255);
@@ -56,21 +55,24 @@ public:
             const int c = (q * 5) / 16;
             const int d = q / 16;
 
+            int* RESTRICT curr_row = m_err.curr[i].data();
+            int* RESTRICT next_row = m_err.next[i].data();
+
             if constexpr (Dir == ScanDirection::Reverse) {
-                m_err.curr[i][x] += a;
-                m_err.next[i][x + 2] += b;
-                m_err.next[i][x + 1] += c;
-                m_err.next[i][x] += d;
+                curr_row[x] += a;
+                next_row[x + 2] += b;
+                next_row[x + 1] += c;
+                next_row[x] += d;
             }
             else {
-                m_err.curr[i][x + 2] += a;
-                m_err.next[i][x] += b;
-                m_err.next[i][x + 1] += c;
-                m_err.next[i][x + 2] += d;
+                curr_row[x + 2] += a;
+                next_row[x] += b;
+                next_row[x + 1] += c;
+                next_row[x + 2] += d;
             }
         }
 
-        return index;
+        return getPaletteColor(index);
     }
 
     void dither_image_to_indexed(double factor, const LA8* RESTRICT srcData, int width, int height,
@@ -82,14 +84,14 @@ public:
             // --- 1. Even row (y) -> Forward scan ---
             beginRow(y);
             for (int x = 0; x < width; ++x) {
-                dstData[y * width + x] = getPaletteColor(ditherRgbToIndex2D<ScanDirection::Forward>(x, y));
+                dstData[y * width + x] = ditherRgbToIndex2D<ScanDirection::Forward>(x, y);
             }
 
             // --- 2. Odd row (y + 1) -> Reverse scan ---
             ++y;
             beginRow(y);
             for (int x = width - 1; x >= 0; --x) {
-                dstData[y * width + x] = getPaletteColor(ditherRgbToIndex2D<ScanDirection::Reverse>(x, y));
+                dstData[y * width + x] = ditherRgbToIndex2D<ScanDirection::Reverse>(x, y);
             }
         }
 
@@ -97,7 +99,7 @@ public:
         if (y < height) {
             beginRow(y);
             for (int x = 0; x < width; ++x) {
-                dstData[y * width + x] = getPaletteColor(ditherRgbToIndex2D<ScanDirection::Forward>(x, y));
+                dstData[y * width + x] = ditherRgbToIndex2D<ScanDirection::Forward>(x, y);
             }
         }
     }

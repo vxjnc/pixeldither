@@ -1,6 +1,7 @@
 #include "dither.hpp"
 
 #include "core/error_diffusion.hpp"
+#include "core/la8.hpp"
 
 void DitherProcessor::_bind_methods() {
     gd::ClassDB::bind_method(gd::D_METHOD("process", "source"), &DitherProcessor::process);

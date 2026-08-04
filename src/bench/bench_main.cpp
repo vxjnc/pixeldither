@@ -4,7 +4,7 @@
 #include <benchmark/benchmark.h>
 
 #include "core/error_diffusion.hpp"
-#include "core/rgba8.hpp"
+#include "core/la8.hpp"
 
 class ErrorDiffusionBenchmark : public benchmark::Fixture {
 public:

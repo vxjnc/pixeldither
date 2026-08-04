@@ -2,8 +2,6 @@
 #include <godot_cpp/classes/image.hpp>
 #include <godot_cpp/classes/ref_counted.hpp>
 
-#include "core/rgba8.hpp"
-
 namespace gd = godot;
 
 class Palette;
