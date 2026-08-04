@@ -4,7 +4,6 @@
 #include <benchmark/benchmark.h>
 
 #include "core/error_diffusion.hpp"
-#include "core/palette.hpp"
 #include "core/rgba8.hpp"
 
 class ErrorDiffusionBenchmark : public benchmark::Fixture {
@@ -13,7 +12,6 @@ public:
     int height = 0;
     std::vector<LA8> src_pixels;
     std::vector<LA8> dst_pixels;
-    Palette palette;
     ErrorDiffusionDither dither;
 
     void SetUp(const ::benchmark::State& state) override {
@@ -40,7 +38,7 @@ public:
 
 BENCHMARK_DEFINE_F(ErrorDiffusionBenchmark, Process)(benchmark::State& state) {
     for (auto _ : state) {
-        dither.dither_image_to_indexed(1.0, src_pixels.data(), width, height, dst_pixels.data(), palette);
+        dither.dither_image_to_indexed(1.0, src_pixels.data(), width, height, dst_pixels.data());
 
         benchmark::DoNotOptimize(src_pixels.data());
         benchmark::DoNotOptimize(dst_pixels.data());

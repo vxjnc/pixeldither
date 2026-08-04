@@ -1,9 +1,8 @@
 #pragma once
 
-#include "palette.hpp"
+#include "rgba8.hpp"
 
 #include <algorithm>
-#include <ranges>
 
 #include "core/error_buffer.hpp"
 
@@ -17,9 +16,11 @@
 
 class ErrorDiffusionDither {
 public:
-    enum class ScanDirection { Forward, Reverse };
+    enum class ScanDirection : uint8_t { Forward, Reverse };
 
     static constexpr int kChannels = sizeof(LA8);
+
+    constexpr LA8 getPaletteColor(int index) { return LA8(index == 2 ? 255 : 0, index > 0 ? 255 : 0); }
 
     void start(const LA8* RESTRICT srcData, int width, int height, double factor) {
         m_srcData = srcData;
@@ -31,30 +32,29 @@ public:
 
     void beginRow(int y) { m_err.swapAndResetNext(); }
 
-    template <ScanDirection Dir> int ditherRgbToIndex2D(int x, int y, const Palette& palette) {
+    template <ScanDirection Dir> int ditherRgbToIndex2D(int x, int y) {
         const LA8& srcPixel = m_srcData[y * m_srcWidth + x];
 
-        LA8 v = srcPixel;
-        v.l = std::clamp(v.l + m_err.curr[0][x + 1], 0, 255);
-        v.a = std::clamp(v.a + m_err.curr[1][x + 1], 0, 255);
+        const int v_l = std::clamp(srcPixel.l + m_err.curr[0][x + 1], 0, 255);
+        const int v_a = std::clamp(srcPixel.a + m_err.curr[1][x + 1], 0, 255);
 
-        const int index = palette.findBestfit(v);
+        const bool hasAlpha = (v_a >= 128);
+        const bool isWhite = (v_l >= 128);
 
-        LA8 palColor = palette.getEntry(index);
+        const int index = hasAlpha ? (isWhite ? 2 : 1) : 0;
 
-        if (palette.transparentIndex == index || palColor.a == 0) {
-            palColor.l = srcPixel.l;
-            palColor.a = 0;
-        }
+        const int pal_l = hasAlpha ? (isWhite ? 255 : 0) : static_cast<int>(srcPixel.l);
+        const int pal_a = hasAlpha ? 255 : 0;
 
-        const int quantError[kChannels] = {v.l - palColor.l, v.a - palColor.a};
+        const int quantError[kChannels] = {v_l - pal_l, v_a - pal_a};
 
         for (int i = 0; i < kChannels; ++i) {
-            const int q = quantError[i] * m_factor / 100;
-            const int a = q * 7 / 16;
-            const int b = q * 3 / 16;
-            const int c = q * 5 / 16;
-            const int d = q * 1 / 16;
+            const int q = (quantError[i] * m_factor) / 100;
+
+            const int a = (q * 7) / 16;
+            const int b = (q * 3) / 16;
+            const int c = (q * 5) / 16;
+            const int d = q / 16;
 
             if constexpr (Dir == ScanDirection::Reverse) {
                 m_err.curr[i][x] += a;
@@ -74,7 +74,7 @@ public:
     }
 
     void dither_image_to_indexed(double factor, const LA8* RESTRICT srcData, int width, int height,
-                                 LA8* RESTRICT dstData, const Palette& palette) {
+                                 LA8* RESTRICT dstData) {
         start(srcData, width, height, factor);
 
         int y = 0;
@@ -82,16 +82,14 @@ public:
             // --- 1. Even row (y) -> Forward scan ---
             beginRow(y);
             for (int x = 0; x < width; ++x) {
-                dstData[y * width + x] =
-                    palette.getEntry(ditherRgbToIndex2D<ScanDirection::Forward>(x, y, palette));
+                dstData[y * width + x] = getPaletteColor(ditherRgbToIndex2D<ScanDirection::Forward>(x, y));
             }
 
             // --- 2. Odd row (y + 1) -> Reverse scan ---
             ++y;
             beginRow(y);
             for (int x = width - 1; x >= 0; --x) {
-                dstData[y * width + x] =
-                    palette.getEntry(ditherRgbToIndex2D<ScanDirection::Reverse>(x, y, palette));
+                dstData[y * width + x] = getPaletteColor(ditherRgbToIndex2D<ScanDirection::Reverse>(x, y));
             }
         }
 
@@ -99,8 +97,7 @@ public:
         if (y < height) {
             beginRow(y);
             for (int x = 0; x < width; ++x) {
-                dstData[y * width + x] =
-                    palette.getEntry(ditherRgbToIndex2D<ScanDirection::Forward>(x, y, palette));
+                dstData[y * width + x] = getPaletteColor(ditherRgbToIndex2D<ScanDirection::Forward>(x, y));
             }
         }
     }
