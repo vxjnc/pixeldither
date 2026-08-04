@@ -71,10 +71,12 @@ jobs:
 
       - name: Assemble package
         run: |
-          mkdir -p release/addons/pixeldither/bin
-          cp -r artifacts/pixeldither-linux/linux release/addons/pixeldither/bin/
-          cp -r artifacts/pixeldither-windows/windows release/addons/pixeldither/bin/
-          cp -r artifacts/pixeldither-macos/macos release/addons/pixeldither/bin/
+          mkdir -p release/addons/pixeldither/bin/linux
+          mkdir -p release/addons/pixeldither/bin/windows
+          mkdir -p release/addons/pixeldither/bin/macos
+          cp artifacts/pixeldither-linux/* release/addons/pixeldither/bin/linux/
+          cp artifacts/pixeldither-windows/* release/addons/pixeldither/bin/windows/
+          cp artifacts/pixeldither-macos/* release/addons/pixeldither/bin/macos/
           cp project/addons/pixeldither/pixeldither.gdextension release/addons/pixeldither/
           cd release && zip -r ../pixeldither.zip addons
 
