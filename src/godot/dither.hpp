@@ -14,5 +14,5 @@ protected:
     static void _bind_methods();
 
 public:
-    gd::Ref<gd::Image> process(gd::Ref<gd::Image> source);
+    gd::Ref<gd::Image> process(float factor, gd::Ref<gd::Image> source);
 };

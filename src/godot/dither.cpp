@@ -4,10 +4,10 @@
 #include "core/la8.hpp"
 
 void DitherProcessor::_bind_methods() {
-    gd::ClassDB::bind_method(gd::D_METHOD("process", "source"), &DitherProcessor::process);
+    gd::ClassDB::bind_method(gd::D_METHOD("process", "factor", "source"), &DitherProcessor::process);
 }
 
-gd::Ref<gd::Image> DitherProcessor::process(gd::Ref<gd::Image> source) {
+gd::Ref<gd::Image> DitherProcessor::process(float factor, gd::Ref<gd::Image> source) {
     ERR_FAIL_COND_V_MSG(source->get_format() != gd::Image::FORMAT_LA8, gd::Ref<gd::Image>(),
                         "DitherProcessor::process: source image must be in FORMAT_LA8");
 
@@ -22,7 +22,7 @@ gd::Ref<gd::Image> DitherProcessor::process(gd::Ref<gd::Image> source) {
     LA8* dst_ptr = reinterpret_cast<LA8*>(dst_data.ptrw());
 
     ErrorDiffusionDither dither;
-    dither.dither_image_to_indexed(1.0, src_ptr, w, h, dst_ptr);
+    dither.dither_image_to_indexed(factor, src_ptr, w, h, dst_ptr);
 
     gd::Ref<gd::Image> result = gd::Image::create_from_data(w, h, false, gd::Image::FORMAT_LA8, dst_data);
 

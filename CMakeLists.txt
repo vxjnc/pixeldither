@@ -1,4 +1,25 @@
 cmake_minimum_required(VERSION 3.19)
+
+if(NOT DEFINED CMAKE_CXX_COMPILER)
+    find_program(CLANGXX_EXECUTABLE NAMES clang++)
+    if(CLANGXX_EXECUTABLE)
+        set(CMAKE_CXX_COMPILER "${CLANGXX_EXECUTABLE}")
+        message(STATUS "Clang not explicitly set, defaulting to found clang++: ${CLANGXX_EXECUTABLE}")
+    else()
+        message(WARNING "clang++ not found in PATH, falling back to default compiler")
+    endif()
+endif()
+
+if(NOT DEFINED CMAKE_C_COMPILER)
+    find_program(CLANG_EXECUTABLE NAMES clang)
+    if(CLANG_EXECUTABLE)
+        set(CMAKE_C_COMPILER "${CLANG_EXECUTABLE}")
+        message(STATUS "Clang not explicitly set, defaulting to found clang: ${CLANG_EXECUTABLE}")
+    else()
+        message(WARNING "clang not found in PATH, falling back to default compiler")
+    endif()
+endif()
+
 project(pixeldither)
 
 set(CMAKE_CXX_STANDARD 20)
