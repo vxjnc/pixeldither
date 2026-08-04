@@ -36,7 +36,9 @@ jobs:
       - name: Setup ccache
         uses: hendrikmuhs/ccache-action@v1.2
         with:
-          key: ${{ matrix.platform }}-pixeldither
+          key: ${{ matrix.platform }}-pixeldither-${{ github.sha }}
+          restore-keys: |
+            ${{ matrix.platform }}-pixeldither-
 
       - name: Configure (reldebinfo)
         run: >
