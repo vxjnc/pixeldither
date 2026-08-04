@@ -29,13 +29,17 @@ public:
         m_factor = int(factor * 100.0);
     }
 
-    void beginRow(int y) { m_err.swapAndResetNext(); }
+    void beginRow(int y) {
+        m_err.swapAndResetNext();
+        m_carry[0] = 0;
+        m_carry[1] = 0;
+    }
 
     template <ScanDirection Dir> LA8 ditherRgbToIndex2D(int x, int y) {
         const LA8 srcPixel = m_srcData[y * m_srcWidth + x];
 
-        const int v_l = std::clamp(srcPixel.l + m_err.curr[0][x + 1], 0, 255);
-        const int v_a = std::clamp(srcPixel.a + m_err.curr[1][x + 1], 0, 255);
+        const int v_l = std::clamp(srcPixel.l + m_err.curr[0][x + 1] + m_carry[0], 0, 255);
+        const int v_a = std::clamp(srcPixel.a + m_err.curr[1][x + 1] + m_carry[1], 0, 255);
 
         const bool hasAlpha = (v_a >= 128);
         const bool isWhite = (v_l >= 128);
@@ -56,21 +60,20 @@ public:
             const int c = ((q * 5) + corr) >> 4;
             const int d = (q + corr) >> 4;
 
-            int* RESTRICT curr_row = m_err.curr[i].data();
             int* RESTRICT next_row = m_err.next[i].data();
 
             if constexpr (Dir == ScanDirection::Reverse) {
-                curr_row[x] += a;
                 next_row[x + 2] += b;
                 next_row[x + 1] += c;
                 next_row[x] += d;
             }
             else {
-                curr_row[x + 2] += a;
                 next_row[x] += b;
                 next_row[x + 1] += c;
                 next_row[x + 2] += d;
             }
+
+            m_carry[i] = a;
         }
 
         return getPaletteColor(index);
@@ -112,4 +115,6 @@ private:
     int m_width = 0;
     ErrorBuffer<kChannels> m_err;
     int m_factor = 0;
+
+    int m_carry[kChannels] = {0, 0};
 };
