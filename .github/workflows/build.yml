@@ -25,6 +25,16 @@ jobs:
         with:
           submodules: recursive
 
+      - name: Cache godot-cpp build
+        uses: actions/cache@v4
+        with:
+          path: |
+            build-debug
+            build-release
+          key: ${{ matrix.platform }}-godotcpp-${{ hashFiles('godot-cpp/**') }}
+          restore-keys: |
+            ${{ matrix.platform }}-godotcpp-
+
       - name: Configure (debug)
         run: >
           cmake -B build-debug -S .
