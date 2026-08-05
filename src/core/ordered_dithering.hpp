@@ -5,7 +5,6 @@
 #include <limits>
 
 #include "core/la8.hpp"
-#include "core/old_dithering.hpp"
 #include "core/palette.hpp"
 
 class OrderedDithering {

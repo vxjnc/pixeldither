@@ -22,6 +22,14 @@
                 "CMAKE_BUILD_TYPE": "RelWithDebInfo",
                 "BUILD_BENCHMARKS": "ON"
             }
+        },
+        {
+            "name": "tests",
+            "binaryDir": "${sourceDir}/build/tests",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "RelWithDebInfo",
+                "BUILD_TESTS": "ON"
+            }
         }
     ],
     "buildPresets": [
@@ -38,6 +46,13 @@
             "configurePreset": "bench",
             "targets": [
                 "pixeldither_bench"
+            ]
+        },
+        {
+            "name": "tests",
+            "configurePreset": "tests",
+            "targets": [
+                "pixeldither_tests"
             ]
         }
     ]

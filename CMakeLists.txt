@@ -78,7 +78,6 @@ set_target_properties(${ADDON_NAME} PROPERTIES
 
 # --- 3. Google Benchmark (optional target) ---
 option(BUILD_BENCHMARKS "Build Google Benchmark executable" OFF)
-
 if(BUILD_BENCHMARKS)
     include(FetchContent)
 
@@ -97,6 +96,43 @@ if(BUILD_BENCHMARKS)
     target_link_libraries(${ADDON_NAME}_bench PRIVATE ${ADDON_NAME}_core benchmark::benchmark)
 
     set_target_properties(${ADDON_NAME}_bench PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
+    )
+endif()
+
+# --- 4. Testing (optional target) ---
+option(BUILD_TESTS "Build unit tests" OFF)
+if(BUILD_TESTS)
+    include(FetchContent)
+    FetchContent_Declare(
+        doctest
+        GIT_REPOSITORY https://github.com/doctest/doctest.git
+        GIT_TAG        v2.5.3
+    )
+    FetchContent_Declare(
+        stb
+        GIT_REPOSITORY https://github.com/nothings/stb.git
+        GIT_TAG master
+    )
+    FetchContent_MakeAvailable(doctest stb)
+
+    file(GLOB TEST_SOURCES tests/*.cpp)
+
+    add_executable(${ADDON_NAME}_tests
+        ${TEST_SOURCES}
+    )
+
+    target_include_directories(${ADDON_NAME}_tests PRIVATE
+        ${stb_SOURCE_DIR}
+    )
+
+    target_link_libraries(${ADDON_NAME}_tests
+        PRIVATE
+            ${ADDON_NAME}_core
+            doctest::doctest
+    )
+
+    set_target_properties(${ADDON_NAME}_tests PROPERTIES
         RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
     )
 endif()
