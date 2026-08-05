@@ -42,6 +42,7 @@ jobs:
         uses: bwoodsend/setup-winlibs-action@v1
         with:
           with_clang: true
+          threads: win32
 
       - name: Setup ccache
         uses: hendrikmuhs/ccache-action@v1.2.23
