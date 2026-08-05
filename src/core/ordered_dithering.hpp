@@ -29,7 +29,7 @@ public:
         int altIndex = -1;
         int closestDistance = std::numeric_limits<int>::max();
 
-        for (uint8_t i = 0; i < Palette::detail::colors.size(); ++i) {
+        for (uint8_t i = 0; i < Palette::colors.size(); ++i) {
             if (i == Palette::transparentIndex) {
                 continue;
             }

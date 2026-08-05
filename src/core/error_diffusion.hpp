@@ -36,15 +36,11 @@ public:
         const int v_l = std::clamp(srcPixel.l + m_err.curr[0][x + 1] + m_carry[0], 0, 255);
         const int v_a = std::clamp(srcPixel.a + m_err.curr[1][x + 1] + m_carry[1], 0, 255);
 
-        const bool hasAlpha = (v_a >= 128);
-        const bool isWhite = (v_l >= 128);
+        const int index = Palette::findBestfit(LA8{static_cast<uint8_t>(v_l), static_cast<uint8_t>(v_a)});
 
-        const int index = hasAlpha ? (isWhite ? 2 : 1) : 0;
+        const LA8 pal = Palette::getEntry(index);
 
-        const int pal_l = hasAlpha ? (isWhite ? 255 : 0) : static_cast<int>(srcPixel.l);
-        const int pal_a = hasAlpha ? 255 : 0;
-
-        const int quantError[kChannels] = {v_l - pal_l, v_a - pal_a};
+        const int quantError[kChannels] = {v_l - pal.l, v_a - pal.a};
 
         for (int i = 0; i < kChannels; ++i) {
             const int q = (quantError[i] * m_factor) / 100;
