@@ -52,6 +52,8 @@ namespace Palette {
         }
 
         inline constexpr auto lut = generateLut();
+
+        [[nodiscard]] inline constexpr int const_abs(int x) { return x < 0 ? -x : x; }
     }
 
     [[nodiscard]] constexpr LA8 getEntry(std::size_t index) { return detail::colors[index]; }
@@ -65,9 +67,9 @@ namespace Palette {
     [[nodiscard]] constexpr int colorDistance(LA8 c1, LA8 c2) {
         int result = 0;
         if (c1.a && c2.a) {
-            result += std::abs(static_cast<int>(c1.l) - static_cast<int>(c2.l)) * 2126;
+            result += detail::const_abs(static_cast<int>(c1.l) - static_cast<int>(c2.l)) * 2126;
         }
-        result += std::abs(static_cast<int>(c1.a) - static_cast<int>(c2.a)) * 20000;
+        result += detail::const_abs(static_cast<int>(c1.a) - static_cast<int>(c2.a)) * 20000;
         return result;
     }
 }
