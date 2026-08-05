@@ -38,9 +38,6 @@ public:
 
         const int d = Palette::colorDistance(c1, srcPixel);
         const int D = Palette::colorDistance(c1, c2);
-        if (D == 0) {
-            return c1;
-        }
 
         const int scaled_d = kMaxMatrixValue * d / D;
         const int threshold = kBayerMatrix8x8[y % kMatrixSize][x % kMatrixSize];
