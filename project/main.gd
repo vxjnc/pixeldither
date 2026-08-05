@@ -24,6 +24,7 @@ func _ready():
 
     method_input.add_item("Error Diffusion", DitherProcessor.DitherMethod.DITHER_ERROR_DIFFUSION)
     method_input.add_item("Old (Bayer 8x8)", DitherProcessor.DitherMethod.DITHER_OLD_DITHERING)
+    method_input.add_item("Ordered (Bayer 4x4)", DitherProcessor.DitherMethod.DITHER_ORDERED_DITHERING)
 
     _update_texture(factor_input.value, original_image.get_size(), current_method)
 

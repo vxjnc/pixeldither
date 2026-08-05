@@ -3,6 +3,7 @@
 #include "core/error_diffusion.hpp"
 #include "core/la8.hpp"
 #include "core/old_dithering.hpp"
+#include "core/ordered_dithering.hpp"
 
 void DitherProcessor::_bind_methods() {
     gd::ClassDB::bind_method(gd::D_METHOD("process", "factor", "source", "method"),
@@ -10,6 +11,7 @@ void DitherProcessor::_bind_methods() {
 
     BIND_ENUM_CONSTANT(DITHER_ERROR_DIFFUSION);
     BIND_ENUM_CONSTANT(DITHER_OLD_DITHERING);
+    BIND_ENUM_CONSTANT(DITHER_ORDERED_DITHERING);
 }
 
 gd::Ref<gd::Image> DitherProcessor::process(float factor, gd::Ref<gd::Image> source, DitherMethod method) {
@@ -29,6 +31,11 @@ gd::Ref<gd::Image> DitherProcessor::process(float factor, gd::Ref<gd::Image> sou
     switch (method) {
     case DITHER_OLD_DITHERING: {
         OldDithering dither;
+        dither.dither_image_to_indexed(factor, src_ptr, w, h, dst_ptr);
+        break;
+    }
+    case DITHER_ORDERED_DITHERING: {
+        OrderedDithering dither;
         dither.dither_image_to_indexed(factor, src_ptr, w, h, dst_ptr);
         break;
     }

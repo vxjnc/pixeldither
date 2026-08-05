@@ -11,6 +11,7 @@ public:
     enum DitherMethod {
         DITHER_ERROR_DIFFUSION,
         DITHER_OLD_DITHERING,
+        DITHER_ORDERED_DITHERING,
     };
 
 protected:
