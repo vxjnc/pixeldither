@@ -25,6 +25,14 @@ jobs:
         with:
           submodules: recursive
 
+      - name: Install Ninja (Linux)
+        if: matrix.platform == 'linux'
+        run: sudo apt-get update && sudo apt-get install -y ninja-build
+
+      - name: Install Ninja (macOS)
+        if: matrix.platform == 'macos'
+        run: brew install ninja
+
       - name: Install Ninja (Windows)
         if: matrix.platform == 'windows'
         run: choco install ninja -y
@@ -43,20 +51,22 @@ jobs:
       - name: Configure (reldebinfo)
         run: >
           cmake --preset reldebinfo
+          -G Ninja
           -DCMAKE_SYSTEM_NAME=${{ matrix.platform }}
-          ${{ matrix.platform == 'windows' && '-G Ninja -DCMAKE_CXX_COMPILER=cl -DCMAKE_C_COMPILER=cl' || '' }}
+          ${{ matrix.platform == 'windows' && '-DCMAKE_CXX_COMPILER=cl -DCMAKE_C_COMPILER=cl' || '' }}
 
       - name: Build (reldebinfo)
-        run: cmake --build --preset reldebinfo --parallel 1
+        run: cmake --build --preset reldebinfo --config RelWithDebInfo
 
       - name: Configure (release)
         run: >
           cmake --preset release
+          -G Ninja
           -DCMAKE_SYSTEM_NAME=${{ matrix.platform }}
-          ${{ matrix.platform == 'windows' && '-G Ninja -DCMAKE_CXX_COMPILER=cl -DCMAKE_C_COMPILER=cl' || '' }}
+          ${{ matrix.platform == 'windows' && '-DCMAKE_CXX_COMPILER=cl -DCMAKE_C_COMPILER=cl' || '' }}
 
       - name: Build (release)
-        run: cmake --build --preset release --parallel 1
+        run: cmake --build --preset release --config Release
 
       - name: Upload binaries
         uses: actions/upload-artifact@v4
