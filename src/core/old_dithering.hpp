@@ -5,6 +5,7 @@
 
 #include "core/la8.hpp"
 #include "core/palette.hpp"
+#include "core/restrict.hpp"
 
 class OldDithering {
 public:
@@ -45,7 +46,8 @@ public:
         return (scaled_d > threshold) ? c2 : c1;
     }
 
-    void dither_image_to_indexed(double factor, const LA8* srcData, int width, int height, LA8* dstData) {
+    void dither_image_to_indexed(double factor, const LA8* RESTRICT srcData, int width, int height,
+                                 LA8* RESTRICT dstData) {
         for (int y = 0; y < height; ++y) {
             for (int x = 0; x < width; ++x) {
                 dstData[y * width + x] = ditherPixelToIndex(x, y, srcData[y * width + x]);
