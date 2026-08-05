@@ -21,6 +21,7 @@ if(NOT DEFINED CMAKE_C_COMPILER)
 endif()
 
 project(pixeldither)
+set(ADDON_NAME ${PROJECT_NAME})
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -37,19 +38,19 @@ if(MSVC)
 endif()
 
 # --- 1. Pure C++ core library ---
-add_library(pixeldither_core INTERFACE)
-target_include_directories(pixeldither_core INTERFACE src)
+add_library(${ADDON_NAME}_core INTERFACE)
+target_include_directories(${ADDON_NAME}_core INTERFACE src)
 
 # --- 2. Godot GDExtension library ---
 add_subdirectory(godot-cpp)
 
 file(GLOB GODOT_SOURCES src/godot/*.cpp)
 
-add_library(pixeldither SHARED ${GODOT_SOURCES})
-target_include_directories(pixeldither PRIVATE src/godot)
+add_library(${ADDON_NAME} SHARED ${GODOT_SOURCES})
+target_include_directories(${ADDON_NAME} PRIVATE src/godot)
 
 # --- Link core library and godot-cpp bindings ---
-target_link_libraries(pixeldither PRIVATE pixeldither_core godot::cpp)
+target_link_libraries(${ADDON_NAME} PRIVATE ${ADDON_NAME}_core godot::cpp)
 
 # --- Configure target naming and output paths for Godot ---
 string(TOLOWER "${CMAKE_BUILD_TYPE}" BUILD_TYPE_LOWER)
@@ -61,18 +62,10 @@ endif()
 
 string(TOLOWER "${CMAKE_SYSTEM_NAME}" PLATFORM_LOWER)
 
-set_target_properties(pixeldither PROPERTIES
-    OUTPUT_NAME "pixeldither.${PLATFORM_LOWER}.${GODOT_TARGET_SUFFIX}.x86_64"
-    LIBRARY_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/bin/${PLATFORM_LOWER}"
-    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/bin/${PLATFORM_LOWER}"
-)
-
-# --- Copy compiled binary to Godot project folder ---
-add_custom_command(TARGET pixeldither POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E make_directory "${CMAKE_SOURCE_DIR}/project/addons/pixeldither/bin/${PLATFORM_LOWER}"
-    COMMAND ${CMAKE_COMMAND} -E copy
-        "$<TARGET_FILE:pixeldither>"
-        "${CMAKE_SOURCE_DIR}/project/addons/pixeldither/bin/${PLATFORM_LOWER}/"
+set_target_properties(${ADDON_NAME} PROPERTIES
+    OUTPUT_NAME "${ADDON_NAME}.${PLATFORM_LOWER}.${GODOT_TARGET_SUFFIX}.x86_64"
+    LIBRARY_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/project/addons/${ADDON_NAME}/bin/${PLATFORM_LOWER}"
+    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/project/addons/${ADDON_NAME}/bin/${PLATFORM_LOWER}"
 )
 
 # --- 3. Google Benchmark (optional target) ---
@@ -92,10 +85,10 @@ if(BUILD_BENCHMARKS)
 
     file(GLOB BENCH_SOURCES src/bench/*.cpp)
 
-    add_executable(pixeldither_bench ${BENCH_SOURCES})
-    target_link_libraries(pixeldither_bench PRIVATE pixeldither_core benchmark::benchmark)
+    add_executable(${ADDON_NAME}_bench ${BENCH_SOURCES})
+    target_link_libraries(${ADDON_NAME}_bench PRIVATE ${ADDON_NAME}_core benchmark::benchmark)
 
-    set_target_properties(pixeldither_bench PROPERTIES
+    set_target_properties(${ADDON_NAME}_bench PROPERTIES
         RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
     )
 endif()
