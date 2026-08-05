@@ -80,14 +80,14 @@ jobs:
 
       - name: Assemble package
         run: |
-          mkdir -p release/addons/pixeldither/bin/linux
-          mkdir -p release/addons/pixeldither/bin/windows
-          mkdir -p release/addons/pixeldither/bin/macos
-          cp artifacts/pixeldither-linux/* release/addons/pixeldither/bin/linux/
-          cp artifacts/pixeldither-windows/* release/addons/pixeldither/bin/windows/
-          cp artifacts/pixeldither-macos/* release/addons/pixeldither/bin/macos/
-          cp project/addons/pixeldither/pixeldither.gdextension release/addons/pixeldither/
-          cd release && zip -r ../pixeldither.zip addons
+          mkdir -p release/pixeldither/bin/linux
+          mkdir -p release/pixeldither/bin/windows
+          mkdir -p release/pixeldither/bin/macos
+          cp artifacts/pixeldither-linux/* release/pixeldither/bin/linux/
+          cp artifacts/pixeldither-windows/* release/pixeldither/bin/windows/
+          cp artifacts/pixeldither-macos/* release/pixeldither/bin/macos/
+          cp project/addons/pixeldither/pixeldither.gdextension release/pixeldither/
+          cd release && zip -r ../pixeldither.zip pixeldither
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
