@@ -20,6 +20,9 @@ jobs:
 
     runs-on: ${{ matrix.os }}
 
+    env:
+      SCCACHE_GHA_ENABLED: "true"
+
     steps:
       - uses: actions/checkout@v4
         with:
@@ -41,17 +44,22 @@ jobs:
         if: matrix.platform == 'windows'
         uses: ilammy/msvc-dev-cmd@v1
 
-      - name: Setup ccache
+      - name: Setup ccache (Linux/macOS)
+        if: matrix.platform != 'windows'
         uses: hendrikmuhs/ccache-action@v1.2.23
         with:
           key: ${{ matrix.platform }}-pixeldither
+
+      - name: Setup sccache (Windows)
+        if: matrix.platform == 'windows'
+        uses: mozilla-actions/sccache-action@v0.0.11
 
       - name: Configure (reldebinfo)
         run: >
           cmake --preset reldebinfo
           -G Ninja
           -DCMAKE_SYSTEM_NAME=${{ matrix.platform }}
-          ${{ matrix.platform == 'windows' && '-DCMAKE_CXX_COMPILER=cl -DCMAKE_C_COMPILER=cl' || '' }}
+          ${{ matrix.platform == 'windows' && '-DCMAKE_CXX_COMPILER=cl -DCMAKE_C_COMPILER=cl -DCMAKE_CXX_COMPILER_LAUNCHER=sccache -DCMAKE_C_COMPILER_LAUNCHER=sccache -DCMAKE_CXX_FLAGS=/Z7 -DCMAKE_C_FLAGS=/Z7' || '' }}
 
       - name: Build (reldebinfo)
         run: cmake --build --preset reldebinfo --config RelWithDebInfo
@@ -61,7 +69,7 @@ jobs:
           cmake --preset release
           -G Ninja
           -DCMAKE_SYSTEM_NAME=${{ matrix.platform }}
-          ${{ matrix.platform == 'windows' && '-DCMAKE_CXX_COMPILER=cl -DCMAKE_C_COMPILER=cl' || '' }}
+          ${{ matrix.platform == 'windows' && '-DCMAKE_CXX_COMPILER=cl -DCMAKE_C_COMPILER=cl -DCMAKE_CXX_COMPILER_LAUNCHER=sccache -DCMAKE_C_COMPILER_LAUNCHER=sccache -DCMAKE_CXX_FLAGS=/Z7 -DCMAKE_C_FLAGS=/Z7' || '' }}
 
       - name: Build (release)
         run: cmake --build --preset release --config Release
