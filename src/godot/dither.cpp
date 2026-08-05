@@ -4,10 +4,13 @@
 #include "core/la8.hpp"
 
 void DitherProcessor::_bind_methods() {
-    gd::ClassDB::bind_method(gd::D_METHOD("process", "factor", "source"), &DitherProcessor::process);
+    gd::ClassDB::bind_method(gd::D_METHOD("process", "factor", "source", "method"),
+                             &DitherProcessor::process);
+
+    BIND_ENUM_CONSTANT(DITHER_ERROR_DIFFUSION);
 }
 
-gd::Ref<gd::Image> DitherProcessor::process(float factor, gd::Ref<gd::Image> source) {
+gd::Ref<gd::Image> DitherProcessor::process(float factor, gd::Ref<gd::Image> source, DitherMethod method) {
     ERR_FAIL_COND_V_MSG(source->get_format() != gd::Image::FORMAT_LA8, gd::Ref<gd::Image>(),
                         "DitherProcessor::process: source image must be in FORMAT_LA8");
 
@@ -21,8 +24,14 @@ gd::Ref<gd::Image> DitherProcessor::process(float factor, gd::Ref<gd::Image> sou
     dst_data.resize(w * h * sizeof(LA8));
     LA8* dst_ptr = reinterpret_cast<LA8*>(dst_data.ptrw());
 
-    ErrorDiffusionDither dither;
-    dither.dither_image_to_indexed(factor, src_ptr, w, h, dst_ptr);
+    switch (method) {
+    case DitherMethod::DITHER_ERROR_DIFFUSION:
+    default: {
+        ErrorDiffusionDither dither;
+        dither.dither_image_to_indexed(factor, src_ptr, w, h, dst_ptr);
+        break;
+    }
+    }
 
     gd::Ref<gd::Image> result = gd::Image::create_from_data(w, h, false, gd::Image::FORMAT_LA8, dst_data);
 

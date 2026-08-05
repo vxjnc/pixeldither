@@ -39,7 +39,7 @@ func _update_texture(factor: float, target_size: Vector2i) -> void:
     resized.convert(Image.FORMAT_LA8)
 
     var time_start = Time.get_ticks_msec()
-    var result_image = processor.process(factor, resized)
+    var result_image = processor.process(factor, resized, DitherProcessor.DitherMethod.DITHER_ERROR_DIFFUSION)
     var time_end = Time.get_ticks_msec()
     label.text = "%d ms" % (time_end - time_start)
 

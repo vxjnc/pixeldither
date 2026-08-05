@@ -15,12 +15,12 @@ func _run():
         resized.resize(size, size, Image.INTERPOLATE_NEAREST)
 
         for i in range(warmup_iterations):
-            processor.process(1.0, resized)
+            processor.process(1.0, resized, DitherProcessor.DitherMethod.DITHER_ERROR_DIFFUSION)
 
         var times: Array[float] = []
         for i in range(iterations):
             var start = Time.get_ticks_usec()
-            processor.process(1.0, resized)
+            processor.process(1.0, resized, DitherProcessor.DitherMethod.DITHER_ERROR_DIFFUSION)
             var elapsed = (Time.get_ticks_usec() - start) / 1000.0
             times.append(elapsed)
 
