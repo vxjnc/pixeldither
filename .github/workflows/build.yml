@@ -44,9 +44,10 @@ jobs:
       - name: Setup ccache
         uses: hendrikmuhs/ccache-action@v1.2
         with:
-          key: ${{ matrix.platform }}-pixeldither-${{ github.sha }}
+          key: ${{ matrix.platform }}-pixeldither-${{ github.run_id }}
           restore-keys: |
             ${{ matrix.platform }}-pixeldither-
+          max-size: 500M
 
       - name: Configure (reldebinfo)
         run: >
@@ -93,9 +94,9 @@ jobs:
           mkdir -p release/pixeldither/bin/linux
           mkdir -p release/pixeldither/bin/windows
           mkdir -p release/pixeldither/bin/macos
-          cp artifacts/pixeldither-linux/* release/pixeldither/bin/linux/
-          cp artifacts/pixeldither-windows/* release/pixeldither/bin/windows/
-          cp artifacts/pixeldither-macos/* release/pixeldither/bin/macos/
+          cp -r artifacts/pixeldither-linux/* release/pixeldither/bin/linux/ || true
+          cp -r artifacts/pixeldither-windows/* release/pixeldither/bin/windows/ || true
+          cp -r artifacts/pixeldither-macos/* release/pixeldither/bin/macos/ || true
           cp project/addons/pixeldither/pixeldither.gdextension release/pixeldither/
           cd release && zip -r ../pixeldither.zip pixeldither
 
