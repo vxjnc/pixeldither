@@ -59,7 +59,7 @@ jobs:
           cmake --preset reldebinfo
           -G Ninja
           -DCMAKE_SYSTEM_NAME=${{ matrix.platform }}
-          ${{ matrix.platform == 'windows' && '-DCMAKE_CXX_COMPILER=cl -DCMAKE_C_COMPILER=cl -DCMAKE_CXX_COMPILER_LAUNCHER=sccache -DCMAKE_C_COMPILER_LAUNCHER=sccache -DCMAKE_CXX_FLAGS=/Z7 -DCMAKE_C_FLAGS=/Z7' || '' }}
+          ${{ matrix.platform == 'windows' && '-DCMAKE_CXX_COMPILER=cl -DCMAKE_C_COMPILER=cl -DCMAKE_CXX_COMPILER_LAUNCHER=sccache -DCMAKE_C_COMPILER_LAUNCHER=sccache' || '' }}
 
       - name: Build (reldebinfo)
         run: cmake --build --preset reldebinfo --config RelWithDebInfo
@@ -69,7 +69,7 @@ jobs:
           cmake --preset release
           -G Ninja
           -DCMAKE_SYSTEM_NAME=${{ matrix.platform }}
-          ${{ matrix.platform == 'windows' && '-DCMAKE_CXX_COMPILER=cl -DCMAKE_C_COMPILER=cl -DCMAKE_CXX_COMPILER_LAUNCHER=sccache -DCMAKE_C_COMPILER_LAUNCHER=sccache -DCMAKE_CXX_FLAGS=/Z7 -DCMAKE_C_FLAGS=/Z7' || '' }}
+          ${{ matrix.platform == 'windows' && '-DCMAKE_CXX_COMPILER=cl -DCMAKE_C_COMPILER=cl -DCMAKE_CXX_COMPILER_LAUNCHER=sccache -DCMAKE_C_COMPILER_LAUNCHER=sccache' || '' }}
 
       - name: Build (release)
         run: cmake --build --preset release --config Release
