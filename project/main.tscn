@@ -27,6 +27,9 @@ max_value = 1.0
 step = 0.01
 value = 1.0
 
+[node name="MethodInput" type="OptionButton" parent="ControlsPanel" unique_id=499170465]
+layout_mode = 2
+
 [node name="ApplyButton" type="Button" parent="ControlsPanel" unique_id=1771589301]
 layout_mode = 2
 text = "Apply"

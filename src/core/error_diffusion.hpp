@@ -4,6 +4,7 @@
 
 #include "core/error_buffer.hpp"
 #include "core/la8.hpp"
+#include "core/palette.hpp"
 
 #if defined(__GNUC__) || defined(__clang__)
 #define RESTRICT __restrict__
@@ -18,8 +19,6 @@ public:
     enum class ScanDirection : uint8_t { Forward, Reverse };
 
     static constexpr int kChannels = sizeof(LA8);
-
-    constexpr LA8 getPaletteColor(int index) { return LA8(index == 2 ? 255 : 0, index > 0 ? 255 : 0); }
 
     void start(const LA8* RESTRICT srcData, int width, int height, double factor) {
         m_srcData = srcData;
@@ -76,7 +75,7 @@ public:
             m_carry[i] = a;
         }
 
-        return getPaletteColor(index);
+        return Palette::getEntry(index);
     }
 
     template <ScanDirection Dir> void flushRowTail(int width) {

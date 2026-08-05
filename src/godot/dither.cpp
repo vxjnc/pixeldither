@@ -2,12 +2,14 @@
 
 #include "core/error_diffusion.hpp"
 #include "core/la8.hpp"
+#include "core/old_dithering.hpp"
 
 void DitherProcessor::_bind_methods() {
     gd::ClassDB::bind_method(gd::D_METHOD("process", "factor", "source", "method"),
                              &DitherProcessor::process);
 
     BIND_ENUM_CONSTANT(DITHER_ERROR_DIFFUSION);
+    BIND_ENUM_CONSTANT(DITHER_OLD_DITHERING);
 }
 
 gd::Ref<gd::Image> DitherProcessor::process(float factor, gd::Ref<gd::Image> source, DitherMethod method) {
@@ -25,6 +27,11 @@ gd::Ref<gd::Image> DitherProcessor::process(float factor, gd::Ref<gd::Image> sou
     LA8* dst_ptr = reinterpret_cast<LA8*>(dst_data.ptrw());
 
     switch (method) {
+    case DITHER_OLD_DITHERING: {
+        OldDithering dither;
+        dither.dither_image_to_indexed(factor, src_ptr, w, h, dst_ptr);
+        break;
+    }
     case DitherMethod::DITHER_ERROR_DIFFUSION:
     default: {
         ErrorDiffusionDither dither;

@@ -4,15 +4,13 @@
 
 namespace gd = godot;
 
-class Palette;
-class ErrorDiffusionDither;
-
 class DitherProcessor : public gd::RefCounted {
     GDCLASS(DitherProcessor, gd::RefCounted)
 
 public:
     enum DitherMethod {
         DITHER_ERROR_DIFFUSION,
+        DITHER_OLD_DITHERING,
     };
 
 protected:
