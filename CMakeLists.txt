@@ -60,6 +60,10 @@ target_include_directories(${ADDON_NAME} PRIVATE src/godot)
 # --- Link core library and godot-cpp bindings ---
 target_link_libraries(${ADDON_NAME} PRIVATE ${ADDON_NAME}_core godot::cpp)
 
+if(WIN32 AND CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+    target_link_options(${ADDON_NAME} PRIVATE -static-libgcc -static-libstdc++ -static)
+endif()
+
 # --- Configure target naming and output paths for Godot ---
 string(TOLOWER "${CMAKE_BUILD_TYPE}" BUILD_TYPE_LOWER)
 if(BUILD_TYPE_LOWER STREQUAL "release")
